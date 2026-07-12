@@ -1,0 +1,30 @@
+# Claude Code local settings
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Lambda build artifacts (installed from lambda/requirements.txt at build/deploy time)
+lambda/venv/
+lambda/certifi/
+lambda/certifi-*.dist-info/
+lambda/charset_normalizer/
+lambda/charset_normalizer-*.dist-info/
+lambda/idna/
+lambda/idna-*.dist-info/
+lambda/requests/
+lambda/requests-*.dist-info/
+lambda/urllib3/
+lambda/urllib3-*.dist-info/
+lambda/*.so
+*.zip
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/*.tfvars
+!terraform/*.tfvars.example
+crash.log
+crash.*.log
