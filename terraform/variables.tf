@@ -11,3 +11,15 @@ variable "databricks_job_id" {
   type        = string
   default     = "352495504571507"
 }
+
+## GitHub
+variable "git_repo_url"{
+  description = "Git URL for this repo, used to sync notebooks into the Databrics Workspace"
+  type = string
+  default = "https://github.com/mmereles/DE-ML-AI---nyctaxi"
+}
+
+variable "github_repo" {
+  description = "Github Repo authorizated to apply"
+  type = string
+}
