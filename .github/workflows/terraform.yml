@@ -22,45 +22,52 @@ env:
   AWS_REGION: us-east-1
 
 jobs:
-  - name: Checkout
-    uses: actions/checkout@v4
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
 
-  - name: Set up Python
-    uses: actions/setup-python@v5
-    with:
-      python-version: "3.13"
-
-  - name: Install Lambda dependencies into lambda/
-    working-directory: .
-    run: |
-      pip install \
-      --platform manylinux2014_x86_64 \
-      --implementation cp \
-      --python-version 3.13 \
-      --abi cp313 \
-      --only-binary=:all: \
-      --target lambda/ \
-      -r lambda/requirements.txt
-
-  - name: Configure AWS credentials (OIDC)
-    uses: aws-actions/configure-aws-credentials@v4
-    with:
-      role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-      aws-region: ${{env.AWS_REGION }}
-
-  - name: Set up Terraform
-    uses: hashicorp/setup-terraform@v3
-    with:
-      terraform_version: "~1.10"
-
-  - name: Terraform init
-    run: terraform init -input=false
-
-  - name: Terraform validate
-    run: terraform validate
-
-  - name: Terraform plan
-    id: plan
-    run: terraform plan -no-color -input=false -out=tfplan
-  
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+    
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+    
+      - name: Install Lambda dependencies into lambda/
+        working-directory: .
+        run: |
+          pip install \
+          --platform manylinux2014_x86_64 \
+          --implementation cp \
+          --python-version 3.13 \
+          --abi cp313 \
+          --only-binary=:all: \
+          --target lambda/ \
+          -r lambda/requirements.txt
+    
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{env.AWS_REGION }}
+    
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.10"
+    
+      - name: Terraform init
+        run: terraform init -input=false
+    
+      - name: Terraform validate
+        run: terraform validate
+    
+      - name: Terraform plan
+        id: plan
+        run: terraform plan -no-color -input=false -out=tfplan
+    
   
