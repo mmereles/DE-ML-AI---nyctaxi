@@ -19,7 +19,6 @@ variable "git_repo_url"{
   default = "https://github.com/mmereles/DE-ML-AI---nyctaxi"
 }
 
-variable "github_repo" {
-  description = "Github Repo authorizated to apply"
-  type = string
+locals {
+  github_repo = replace(var.git_repo_url, "https://github.com/", "")
 }
