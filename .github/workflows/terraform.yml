@@ -54,6 +54,14 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{env.AWS_REGION }}
+
+      - name: Fetch Databricks token from Secrets Manager
+        run: |
+          TOKEN=$(aws secretsmanager get-secret-value \
+            --secret-id "arn:aws:secretsmanager:us-east-1:575864492282:secret:nyctaxi/databricks-token-cW0E9g" \
+            --query SecretString --output text | python3 -c "import json,sys; print(json.load(sys.stdin)['token'])")
+          echo "::add-mask::$TOKEN"
+          echo "DATABRICKS_TOKEN=$TOKEN" >> "$GITHUB_ENV"
     
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
