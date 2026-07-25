@@ -169,27 +169,13 @@ data "archive_file" "ingestion_lambda_zip" {
 
 # ==== DATA PROCESSING RESOURCES =====
 
-# Secrets Manager for databricks token
-resource "aws_secretsmanager_secret" "databricks_token" {
-  name                    = "nyctaxi/databricks-token"
-  description             = "databricks personal access token for NYC taxi processing"
-  recovery_window_in_days = 7
-
-  tags = {
-    Project = "nyctaxi-ml-pipeline"
-  }
-}
-
-# Store the databricks token
-resource "aws_secretsmanager_secret_version" "databricks_token" {
-  secret_id = aws_secretsmanager_secret.databricks_token.id
-  secret_string = jsonencode({
-    token = "PLACEHOLDER_TOKEN"
-  })
-
-  lifecycle {
-    ignore_changes = [secret_string]
-  }
+# Databricks token secret - created by bootstrap.sh (one-time, before this
+# ever runs), not by this Terraform. Read-only reference on purpose: this
+# config runs repeatedly (local + CI), and a resource block here would try
+# to (re)create the secret on every apply, colliding with the one bootstrap
+# already made in AWS.
+data "aws_secretsmanager_secret" "databricks_token" {
+  name = "nyctaxi/databricks-token"
 }
 
 # Lambda function for data processing trigger
@@ -209,7 +195,7 @@ resource "aws_lambda_function" "nyctaxi_processing_trigger" {
     variables = {
       DATABRICKS_HOST       = var.databricks_host
       DATABRICKS_JOB_ID     = var.databricks_job_id
-      DATABRICKS_SECRET_ARN = aws_secretsmanager_secret.databricks_token.arn
+      DATABRICKS_SECRET_ARN = data.aws_secretsmanager_secret.databricks_token.arn
     }
   }
 
@@ -279,7 +265,7 @@ resource "aws_iam_role_policy" "processing_lambda_policy" {
         Action = [
           "secretsmanager:GetSecretValue"
         ]
-        Resource = aws_secretsmanager_secret.databricks_token.arn
+        Resource = data.aws_secretsmanager_secret.databricks_token.arn
       }
     ]
   })

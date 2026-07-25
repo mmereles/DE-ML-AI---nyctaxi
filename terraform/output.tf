@@ -30,7 +30,7 @@ output "processing_lambda_function_arn" {
 
 output "databricks_secret_arn" {
   description = "ARN of the DataBricks token secret"
-  value       = aws_secretsmanager_secret.databricks_token.arn
+  value       = data.aws_secretsmanager_secret.databricks_token.arn
 }
 
 output "eventbridge_rule_arn" {
