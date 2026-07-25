@@ -18,7 +18,3 @@ variable "git_repo_url"{
   type = string
   default = "https://github.com/mmereles/DE-ML-AI---nyctaxi"
 }
-
-locals {
-  github_repo = replace(var.git_repo_url, "https://github.com/", "")
-}
