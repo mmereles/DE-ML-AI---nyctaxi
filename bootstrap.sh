@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
-# One-time bootstrap: creates the S3 state bucket, migrates local state to
-# it, and applies the GitHub OIDC role. Safe to re-run - each step is
-# idempotent (bucket creation is skipped if it exists, and `apply -target`
-# just reports "no changes" if the OIDC resources are already there).
+# One-time bootstrap, run manually from your machine (never by CI):
+#   1. Create the S3 state bucket for terraform/.
+#   2. Apply the GitHub OIDC role (terraform-inicial/, its own local state -
+#      the CI role must never be able to manage the resources that grant it
+#      access, so this never runs as part of the terraform/ CI pipeline).
+#   3. Restore the Databricks token secret if it's pending deletion, and
+#      import it into terraform/'s state so the next apply doesn't try to
+#      recreate it (which would either fail or clobber the real token with
+#      the placeholder value in main.tf).
+#   4. Migrate terraform/'s local state to the S3 backend.
+# Safe to re-run - each step is idempotent.
 set -euo pipefail
 
 BUCKET="nyctaxi-tfstate-98741313131"
 REGION="us-east-1"
+SECRET_ARN="arn:aws:secretsmanager:us-east-1:575864492282:secret:nyctaxi/databricks-token-cW0E9g"
 
-cd "$(dirname "$0")"
-cd terraform
+REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
-echo "== 1/3: S3 bucket for remote state =="
+echo "== 1/4: S3 bucket for remote state =="
 if aws s3api head-bucket --bucket "$BUCKET" --region "$REGION" 2>/dev/null; then
   echo "Bucket $BUCKET already exists, skipping creation."
 else
@@ -25,17 +32,32 @@ else
 fi
 
 echo
-echo "== 2/3: Migrate local state to the S3 backend =="
+echo "== 2/4: Apply GitHub OIDC role (terraform-inicial/, local state) =="
+cd "$REPO_ROOT/terraform-inicial"
+terraform init
+terraform apply
+
+echo
+echo "== 3/4: Databricks token secret: restore + import into terraform/ state =="
+cd "$REPO_ROOT/terraform"
+if aws secretsmanager describe-secret --secret-id "$SECRET_ARN" --query DeletedDate --output text 2>/dev/null | grep -qv '^None$'; then
+  echo "Secret pending deletion, restoring..."
+  aws secretsmanager restore-secret --secret-id "$SECRET_ARN"
+fi
+
+echo
+echo "== 4/4: Migrate terraform/ local state to the S3 backend =="
 terraform init -migrate-state
 
-echo
-echo "== 3/3: Apply GitHub OIDC role =="
-terraform apply \
-  -target=aws_iam_openid_connect_provider.github_actions \
-  -target=aws_iam_role.github_actions \
-  -target=aws_iam_role_policy_attachment.github_actions_poweruser \
-  -target=aws_iam_role_policy.github_actions_iam_scoped
+if ! terraform state list | grep -q '^aws_secretsmanager_secret\.databricks_token$'; then
+  terraform import aws_secretsmanager_secret.databricks_token "$SECRET_ARN"
+fi
+if ! terraform state list | grep -q '^aws_secretsmanager_secret_version\.databricks_token$'; then
+  VERSION_ID=$(aws secretsmanager get-secret-value --secret-id "$SECRET_ARN" --query VersionId --output text)
+  terraform import aws_secretsmanager_secret_version.databricks_token "${SECRET_ARN}|${VERSION_ID}"
+fi
 
 echo
-echo "Done. Load this ARN into GitHub: Settings > Secrets and variables > Actions > Variables > AWS_ROLE_ARN"
+echo "Done. Load this ARN into GitHub: Settings > Secrets and variables > Actions > Secrets > AWS_ROLE_ARN"
+cd "$REPO_ROOT/terraform-inicial"
 terraform output github_actions_role_arn
