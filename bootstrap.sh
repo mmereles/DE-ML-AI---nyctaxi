@@ -4,20 +4,42 @@
 #   2. Apply the GitHub OIDC role (terraform-inicial/, its own local state -
 #      the CI role must never be able to manage the resources that grant it
 #      access, so this never runs as part of the terraform/ CI pipeline).
-#   3. Ensure the Databricks token secret exists (create it with a
-#      placeholder on a fresh account, or restore it if it's pending
-#      deletion). terraform/main.tf only ever *reads* this secret (a `data`
-#      source, not a `resource`) - it's bootstrap's job to create it, so
-#      repeated applies (local + CI) never fight over owning it.
+#   3. Ensure the Databricks token and GitHub PAT secrets exist (create with
+#      a placeholder on a fresh account, or restore if pending deletion).
+#      terraform/databricks.tf and main.tf only ever *read* these (`data`
+#      sources, not `resource`s) - it's bootstrap's job to create them, so
+#      repeated applies (local + CI) never fight over owning them.
 #   4. Migrate terraform/'s local state to the S3 backend.
 # Safe to re-run - each step is idempotent.
 set -euo pipefail
 
 BUCKET="nyctaxi-tfstate-98741313131"
 REGION="us-east-1"
-SECRET_NAME="nyctaxi/databricks-token"
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
+
+ensure_secret() {
+  local secret_name="$1"
+  local description="$2"
+  if aws secretsmanager describe-secret --secret-id "$secret_name" >/dev/null 2>&1; then
+    local deleted
+    deleted=$(aws secretsmanager describe-secret --secret-id "$secret_name" --query DeletedDate --output text 2>/dev/null)
+    if [ "$deleted" != "None" ]; then
+      echo "Secret $secret_name pending deletion, restoring..."
+      aws secretsmanager restore-secret --secret-id "$secret_name"
+    else
+      echo "Secret $secret_name already exists, skipping creation."
+    fi
+  else
+    echo "Secret $secret_name doesn't exist yet - creating with a placeholder value."
+    aws secretsmanager create-secret \
+      --name "$secret_name" \
+      --description "$description" \
+      --secret-string '{"token":"PLACEHOLDER_TOKEN"}'
+    echo "IMPORTANT: replace the placeholder with the real value:"
+    echo "  aws secretsmanager put-secret-value --secret-id $secret_name --secret-string '{\"token\":\"<real-value>\"}'"
+  fi
+}
 
 echo "== 1/4: S3 bucket for remote state =="
 if aws s3api head-bucket --bucket "$BUCKET" --region "$REGION" 2>/dev/null; then
@@ -39,24 +61,9 @@ terraform init
 terraform apply
 
 echo
-echo "== 3/4: Ensure Databricks token secret exists =="
-if aws secretsmanager describe-secret --secret-id "$SECRET_NAME" >/dev/null 2>&1; then
-  DELETED=$(aws secretsmanager describe-secret --secret-id "$SECRET_NAME" --query DeletedDate --output text 2>/dev/null)
-  if [ "$DELETED" != "None" ]; then
-    echo "Secret pending deletion, restoring..."
-    aws secretsmanager restore-secret --secret-id "$SECRET_NAME"
-  else
-    echo "Secret already exists, skipping creation."
-  fi
-else
-  echo "Secret doesn't exist yet - creating with a placeholder value."
-  aws secretsmanager create-secret \
-    --name "$SECRET_NAME" \
-    --description "Databricks personal access token for NYC taxi processing" \
-    --secret-string '{"token":"PLACEHOLDER_TOKEN"}'
-  echo "IMPORTANT: replace the placeholder with your real Databricks token:"
-  echo "  aws secretsmanager put-secret-value --secret-id $SECRET_NAME --secret-string '{\"token\":\"<your-real-token>\"}'"
-fi
+echo "== 3/4: Ensure Databricks token + GitHub PAT secrets exist =="
+ensure_secret "nyctaxi/databricks-token" "Databricks personal access token for NYC taxi processing"
+ensure_secret "nyctaxi/github-pat" "GitHub PAT so Databricks can clone the repo (Git folder / databricks_git_credential)"
 
 echo
 echo "== 4/4: Migrate terraform/ local state to the S3 backend =="
