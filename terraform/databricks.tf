@@ -28,7 +28,11 @@ resource "databricks_job" "processing" {
     task {
         task_key = "process"
         notebook_task {
-            notebook_path = "${databricks_repo.nyctaxi_pipeline.path}/nyctaxi - processing.py"
+            # workspace_path (not path) - this workspace uses the unified
+            # /Workspace/Repos/... addressing; the legacy /Repos/... path
+            # resolves fine in the browser UI but a notebook_task with that
+            # path fails with "Unable to access the notebook".
+            notebook_path = "${databricks_repo.nyctaxi_pipeline.workspace_path}/nyctaxi - processing.py"
         }
         
     }
