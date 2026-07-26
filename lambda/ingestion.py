@@ -25,9 +25,11 @@ def lambda_handler(event, context):
 
     logger.info(f"Configuration - S3 Bucket: {s3_bucket}, Prefix: {s3_prefix}")
 
-    # Find the previous month
+    # Find the target month - 2 months back (not 1), since TLC publishes
+    # data with a lag and last month's file isn't available yet when this
+    # runs (confirmed: a 1-month lag gets a 403 from TLC's CloudFront).
     now = datetime.now()
-    target_date = now - timedelta(days=32)
+    target_date = now - timedelta(days=64)
     year = str(target_date.year)
     month = str(target_date.month).zfill(2)
     logger.info(f"Target month: {year}-{month}")
