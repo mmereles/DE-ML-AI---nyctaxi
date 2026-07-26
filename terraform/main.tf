@@ -369,7 +369,7 @@ data "archive_file" "processing_lambda_zip" {
 }
 
 # === DATABRICKS CLUSTER -> CLOUDWATCH METRICS ===
-# The processing notebook ("nyctaxi - processing.ipynb") now calls
+# The processing notebook ("nyctaxi - processing.py") now calls
 # boto3 cloudwatch.put_metric_data(...) directly to report business/data-quality
 # metrics (records loaded, records removed, data quality %, validation checks,
 # records written, run success). For those calls to succeed, the Databricks job

@@ -28,7 +28,7 @@ resource "databricks_job" "processing" {
     task {
         task_key = "process"
         notebook_task {
-            notebook_path = "${databricks_repo.nyctaxi_pipeline.path}/nyctaxi - processing.ipynb"
+            notebook_path = "${databricks_repo.nyctaxi_pipeline.path}/nyctaxi - processing.py"
         }
         
     }
