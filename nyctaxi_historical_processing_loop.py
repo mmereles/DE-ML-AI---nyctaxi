@@ -16,7 +16,11 @@
 
 dbutils.widgets.text("bucket", "nyc-taxi-bucket-12313")
 dbutils.widgets.text("prefix", "nyctaxi/historical/")
-dbutils.widgets.text("processing_notebook_path", "/Workspace/Repos/production/nyctaxi-pipeline/nyctaxi - processing.py")
+# No .py extension - dbutils.notebook.run() references notebooks by their
+# notebook path, not the underlying file name, and fails with
+# ResourceNotFound if the extension is included (unlike a Job notebook_task,
+# which tolerates either form).
+dbutils.widgets.text("processing_notebook_path", "/Workspace/Repos/production/nyctaxi-pipeline/nyctaxi - processing")
 dbutils.widgets.text("timeout_seconds", "3600")
 
 bucket = dbutils.widgets.get("bucket")
