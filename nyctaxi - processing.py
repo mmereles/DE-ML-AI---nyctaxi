@@ -84,8 +84,10 @@ df = spark.read.parquet(raw_path)
 def load_and_validate(file_path):
     """Load raw data and perform initial validation"""
     try:
-        # load and cache data (reused across multiple downstream actions)
-        df = spark.read.parquet(file_path).cache()
+        # .cache() removed - PERSIST TABLE is not supported on this
+        # serverless compute (NOT_SUPPORTED_WITH_SERVERLESS); recomputed on
+        # each action instead, which is slower but functionally equivalent.
+        df = spark.read.parquet(file_path)
         initial_count = df.count()
         if initial_count == 0:
             raise ValueError("No data found in the file")
@@ -123,7 +125,7 @@ def clean_data(df):
         (F.col("tpep_dropoff_datetime").isNotNull()) &
         (F.col("tpep_dropoff_datetime") > F.col("tpep_pickup_datetime")) &
         ((F.unix_timestamp("tpep_dropoff_datetime") - F.unix_timestamp("tpep_pickup_datetime")) < 86400)
-    ).cache()
+    )
 
     final_count = df_clean.count()
     removed_count = start_count - final_count
@@ -138,9 +140,6 @@ def clean_data(df):
     # Business/data-quality metrics for this run
     send_metric("RecordsRemoved", removed_count)
     send_metric("DataQualityPercent", quality_pct, unit="Percent")
-
-    # raw df no longer needed once cleaned/cached version exists
-    df.unpersist()
 
     return df_clean
 
@@ -253,11 +252,11 @@ def engineer_features(df):
 
     return df_features
 
-# Apply feature engineering and cache the result since it feeds validation,
-# the Delta write, and the summary log (all separate Spark actions).
-feature_df = engineer_features(cleaned_df).cache()
+# feature_df feeds validation, the Delta write, and the summary log
+# (separate Spark actions, each recomputing this - no .cache(), see note
+# in load_and_validate above).
+feature_df = engineer_features(cleaned_df)
 feature_df.count()
-cleaned_df.unpersist()
 
 # COMMAND ----------
 
@@ -399,7 +398,6 @@ def log_processing_summary():
 
 # Generate final summary
 processing_summary = log_processing_summary()
-feature_df.unpersist()
 
 print("Processing completed successfully!")
 print(f"Processed {processing_summary['final_records']} records")
