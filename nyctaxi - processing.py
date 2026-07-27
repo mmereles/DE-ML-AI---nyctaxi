@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # CloudWatch client for business/data-quality metrics emitted by this notebook.
 # Requires the job cluster to have an instance profile with cloudwatch:PutMetricData
 # (see terraform/main.tf -> aws_iam_role.databricks_processing_instance_role).
-cloudwatch = boto3.client("cloudwatch")
+cloudwatch = boto3.client("cloudwatch, region_name = "us-east-1")
 
 
 def send_metric(metric_name, value, unit="Count", extra_dimensions=None):
