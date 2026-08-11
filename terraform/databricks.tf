@@ -25,17 +25,64 @@ resource "databricks_repo" "nyctaxi_pipeline" {
 resource "databricks_job" "processing" {
     name = "nyctaxi-processing"
 
-    task {
-        task_key = "process"
-        notebook_task {
-            # workspace_path (not path) - this workspace uses the unified
-            # /Workspace/Repos/... addressing; the legacy /Repos/... path
-            # resolves fine in the browser UI but a notebook_task with that
-            # path fails with "Unable to access the notebook".
-            notebook_path = "${databricks_repo.nyctaxi_pipeline.workspace_path}/nyctaxi - processing.py"
+    environment {
+        environment_key = "ml_env"
+        spec {
+            client       = "2"
+            dependencies = ["xgboost", "scikit-learn"]
         }
-        
     }
+
+    task {
+    task_key = "process"
+    notebook_task {
+      notebook_path = "${databricks_repo.nyctaxi_pipeline.workspace_path}/notebooks/nyctaxi - processing"
+    }
+  }
+
+  task {
+    task_key = "ground_truth_eval"
+    depends_on {
+      task_key = "process"
+    }
+    environment_key = "ml_env"
+    notebook_task {
+      notebook_path = "${databricks_repo.nyctaxi_pipeline.workspace_path}/notebooks/nyctaxi_ground_truth_eval"
+    }
+  }
+
+  task {
+    task_key = "train"
+    depends_on {
+      task_key = "ground_truth_eval"
+    }
+    environment_key = "ml_env"
+    notebook_task {
+      notebook_path = "${databricks_repo.nyctaxi_pipeline.workspace_path}/notebooks/nyctaxi_fare_prediction_training"
+    }
+  }
+
+  task {
+    task_key = "register_model"
+    depends_on {
+      task_key = "train"
+    }
+    environment_key = "ml_env"
+    notebook_task {
+      notebook_path = "${databricks_repo.nyctaxi_pipeline.workspace_path}/notebooks/nyctaxi_register_model"
+    }
+  }
+
+  task {
+    task_key = "promote_champion"
+    depends_on {
+      task_key = "register_model"
+    }
+    environment_key = "ml_env"
+    notebook_task {
+      notebook_path = "${databricks_repo.nyctaxi_pipeline.workspace_path}/notebooks/nyctaxi_promote_champion"
+    }
+  }
 
     tags = {
         Project = "nyctaxi-ml-pipeline"

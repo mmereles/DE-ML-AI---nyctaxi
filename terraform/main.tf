@@ -194,7 +194,7 @@ resource "aws_lambda_function" "nyctaxi_processing_trigger" {
   environment {
     variables = {
       DATABRICKS_HOST       = var.databricks_host
-      DATABRICKS_JOB_ID     = var.databricks_job_id
+      DATABRICKS_JOB_ID     = databricks_job.processing.id 
       DATABRICKS_SECRET_ARN = data.aws_secretsmanager_secret.databricks_token.arn
     }
   }
