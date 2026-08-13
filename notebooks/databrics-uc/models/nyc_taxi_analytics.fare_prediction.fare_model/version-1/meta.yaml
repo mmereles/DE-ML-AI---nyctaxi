@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1785954230688
+current_stage: None
+description: null
+last_updated_timestamp: 1785954230688
+name: nyc_taxi_analytics.fare_prediction.fare_model
+run_id: 270e5f9bc3264540a9b34ac2fc385f76
+run_link: null
+source: dbfs:/databricks/mlflow-tracking/1306152099699991/270e5f9bc3264540a9b34ac2fc385f76/artifacts/model
+status: READY
+status_message: null
+storage_location: dbfs:/databricks/mlflow-tracking/1306152099699991/270e5f9bc3264540a9b34ac2fc385f76/artifacts/model
+user_id: null
+version: 1

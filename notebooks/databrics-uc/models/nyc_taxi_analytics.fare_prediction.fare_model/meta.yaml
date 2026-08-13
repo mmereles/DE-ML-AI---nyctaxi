@@ -1,0 +1,6 @@
+aliases:
+  champion: '1'
+creation_timestamp: 1785954230360
+description: null
+last_updated_timestamp: 1785954230703
+name: nyc_taxi_analytics.fare_prediction.fare_model
