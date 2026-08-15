@@ -30,13 +30,14 @@ zone_pair_stats = (
     features
     .groupBy("PULocationID", "DOLocationID")
     .agg(
-        F.percentile_approx("trip_distance", 0,5).alias("medium_trip_distance"),
+        F.percentile_approx("trip_distance", 0.5).alias("median_trip_distance"),
         F.percentile_approx("tolls_amount", 0.5).alias("median_tolls"),
         F.percentile_approx(F.col("Total_amount") - F.col("tip_amount"), 0.5).alias("median_fare_total"),
         F.count("*").alias("trip_count")
     )
 )
-zone_pair_stats.withColumn("medium_trip_distance", F.round("medium_trip_distance", 2)).display()
+zone_pair_stats = zone_pair_stats.withColumn("median_trip_distance", F.round("median_trip_distance", 2))
+zone_pair_stats.display()
 
 # COMMAND ----------
 
