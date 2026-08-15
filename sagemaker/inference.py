@@ -82,7 +82,7 @@ def predict_fn(input_data, model):
     
     df["pickup_manhattan"] = df["PULocationID"].map(is_manhattan).astype(int)
     df["dropoff_manhattan"] = df["DOLocationID"].map(is_manhattan).astype(int)
-    df["manhattan_trup"] = (
+    df["manhattan_trip"] = (
         (df["pickup_manhattan"] ==1) | (df["dropoff_manhattan"] == 1)
     ).astype(int)
     df["is_airport_trip"] = (
