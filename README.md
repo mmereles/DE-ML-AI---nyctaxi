@@ -4,6 +4,10 @@ Pipeline de datos e-2-e de **NYC Yellow Taxi** (TLC Trip Record Data): ingesta m
 
 ## Arquitectura
 
+Diagrama completo y editable: [`nyctaxi_architecture.drawio`](nyctaxi_architecture.drawio) (abrir en [app.diagrams.net](https://app.diagrams.net) o con la extensión de draw.io de VS Code — GitHub también lo renderiza al ver el archivo). Distingue visualmente lo implementado (sólido) de lo pendiente (punteado): hoy eso es SNS/email de alertas, `ci.yml`, y la Lambda `quote_api` + API Gateway de la API pública.
+
+Versión resumida en texto:
+
 ```
                          ┌────────────────────────┐
   EventBridge (cron,     │  Lambda: ingestion      │
