@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" type="device">
   <diagram id="nyctaxi-arch" name="Arquitectura">
-    <mxGraphModel dx="1200" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1220" math="0" shadow="0">
+    <mxGraphModel dx="1200" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1780" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -19,7 +19,7 @@
         </mxCell>
 
         <!-- ===================== Grupo GitHub (CI/CD) ===================== -->
-        <mxCell id="gGH" value="GitHub — CI/CD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#5F3DC4;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#5F3DC4;" vertex="1" parent="1">
+        <mxCell id="gGH" value="GitHub — CI/CD (Fase 0.7 / 2.6)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#5F3DC4;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#5F3DC4;" vertex="1" parent="1">
           <mxGeometry x="30" y="150" width="210" height="400" as="geometry" />
         </mxCell>
         <mxCell id="ghRepo" value="Repo&#10;data_eng_yellow_taxi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F0FF;strokeColor=#5F3DC4;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
@@ -33,7 +33,7 @@
         </mxCell>
 
         <!-- ===================== Grupo AWS ===================== -->
-        <mxCell id="gAWS" value="AWS us-east-1 — gestionado con Terraform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#232F3E;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="1">
+        <mxCell id="gAWS" value="AWS us-east-1 — gestionado con Terraform (Fase 0 — ingesta)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#232F3E;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="1">
           <mxGeometry x="280" y="150" width="720" height="680" as="geometry" />
         </mxCell>
 
@@ -72,7 +72,7 @@
         </mxCell>
 
         <!-- ===================== Grupo Databricks ===================== -->
-        <mxCell id="gDBX" value="Databricks Workspace (Free Edition, serverless)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#E8590C;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#E8590C;" vertex="1" parent="1">
+        <mxCell id="gDBX" value="Databricks Workspace (Free Edition, serverless) — Fase 0-2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#E8590C;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#E8590C;" vertex="1" parent="1">
           <mxGeometry x="1060" y="150" width="460" height="700" as="geometry" />
         </mxCell>
         <mxCell id="dbxJob" value="Job nyctaxi-processing&#10;(disparado por API run-now)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
@@ -89,6 +89,9 @@
         </mxCell>
         <mxCell id="dbxExport" value="zone_pair_stats + export_to_sagemaker&#10;(hoy manuales, no task del job)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;dashed=1;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
           <mxGeometry x="1120" y="720" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="dbxFase0" value="Fase 0 (prerequisitos, manuales):&#10;backfill.py → historical_processing_loop&#10;→ schema_audit + eda" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;fontSize=10;fontColor=#343A40;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="240" width="220" height="60" as="geometry" />
         </mxCell>
 
         <!-- ===================== Flujo principal (numerado) ===================== -->
@@ -241,6 +244,43 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e26" value="POST /quote" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#495057;dashed=1;fontColor=#343A40;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="cliente" target="apigw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== Grupo Fase 4 — Capa de IA (sin empezar) ===================== -->
+        <mxCell id="gFase4" value="Fase 4 — Capa de IA (sin empezar; borradores en changes/)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#868E96;dashed=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#868E96;" vertex="1" parent="1">
+          <mxGeometry x="280" y="1220" width="1240" height="500" as="geometry" />
+        </mxCell>
+        <mxCell id="dbxForecast" value="nyctaxi_demand_forecasting (Fase 4.1)&#10;LightGBM · features de calendario + lags&#10;(1h / 24h / 1 semana) · baseline naïve&#10;(pendiente)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;dashed=1;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1300" width="260" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="agent" value="Agente NL (Claude, fable-5)&#10;nyctaxi_assistant.py (Fase 4.2)&#10;herramientas: run_sql (solo SELECT)&#10;+ get_fare_quote&#10;(pendiente)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF2FF;strokeColor=#3B5BDB;dashed=1;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
+          <mxGeometry x="700" y="1300" width="280" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="clienteNL" value="Usuario&#10;pregunta en lenguaje natural" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1F3F5;strokeColor=#495057;dashed=1;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="1320" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e27" value="lee la misma tabla&#10;(features históricas)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#E8590C;dashed=1;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0.15;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dbxUC" target="dbxForecast">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1150" y="1270" />
+              <mxPoint x="470" y="1270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e28" value="run_sql — SELECT-only&#10;vía SQL warehouse" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#3B5BDB;dashed=1;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0.6;exitY=0;exitDx=0;exitDy=0;entryX=0.35;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="agent" target="dbxUC">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="850" y="1250" />
+              <mxPoint x="1190" y="1250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e29" value="get_fare_quote()" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#3B5BDB;dashed=1;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0.7;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="agent" target="apigw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e30" value="pregunta" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#495057;dashed=1;fontColor=#343A40;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="clienteNL" target="agent">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
