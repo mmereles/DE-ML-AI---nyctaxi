@@ -72,25 +72,25 @@
         </mxCell>
 
         <!-- ===================== Grupo Databricks ===================== -->
-        <mxCell id="gDBX" value="Databricks Workspace (Free Edition, serverless) — Fase 0-2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#E8590C;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#E8590C;" vertex="1" parent="1">
+        <mxCell id="gDBX" value="Databricks Workspace (Free Edition, serverless) — Fase 0-2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#FF3621;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#FF3621;" vertex="1" parent="1">
           <mxGeometry x="1060" y="150" width="460" height="700" as="geometry" />
         </mxCell>
-        <mxCell id="dbxJob" value="Job nyctaxi-processing&#10;(disparado por API run-now)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
+        <mxCell id="dbxJob" value="Job nyctaxi-processing&#10;(disparado por API run-now)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEDE9;strokeColor=#FF3621;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
           <mxGeometry x="1120" y="330" width="220" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="dbxNb" value="process (nyctaxi - processing)&#10;limpieza · features · send_metric()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
+        <mxCell id="dbxNb" value="process (nyctaxi - processing)&#10;limpieza · features · send_metric()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEDE9;strokeColor=#FF3621;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
           <mxGeometry x="1120" y="420" width="220" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="dbxUC" value="Unity Catalog / Delta Lake&#10;fare_prediction.yellow_taxi_features" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
+        <mxCell id="dbxUC" value="Unity Catalog / Delta Lake&#10;fare_prediction.yellow_taxi_features" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEDE9;strokeColor=#FF3621;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
           <mxGeometry x="1120" y="510" width="220" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="dbxML" value="ground_truth_eval → train → register_model → promote_champion&#10;Fase 1-2: baseline naïve · XGBoost · MLflow&#10;champion/challenger en Unity Catalog Model Registry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
+        <mxCell id="dbxML" value="ground_truth_eval → train → register_model → promote_champion&#10;Fase 1-2: baseline naïve · XGBoost · MLflow&#10;champion/challenger en Unity Catalog Model Registry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEDE9;strokeColor=#FF3621;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
           <mxGeometry x="1120" y="600" width="220" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="dbxExport" value="zone_pair_stats + export_to_sagemaker&#10;(hoy manuales, no task del job)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;dashed=1;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
+        <mxCell id="dbxExport" value="zone_pair_stats + export_to_sagemaker&#10;(hoy manuales, no task del job)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEDE9;strokeColor=#FF3621;dashed=1;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
           <mxGeometry x="1120" y="720" width="220" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="dbxFase0" value="Fase 0 (prerequisitos, manuales):&#10;backfill.py → historical_processing_loop&#10;→ schema_audit + eda" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;fontSize=10;fontColor=#343A40;align=left;spacingLeft=6;" vertex="1" parent="1">
+        <mxCell id="dbxFase0" value="Fase 0 (prerequisitos, manuales):&#10;backfill.py → historical_processing_loop&#10;→ schema_audit + eda" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEDE9;strokeColor=#FF3621;fontSize=10;fontColor=#343A40;align=left;spacingLeft=6;" vertex="1" parent="1">
           <mxGeometry x="1120" y="240" width="220" height="60" as="geometry" />
         </mxCell>
 
@@ -136,10 +136,10 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e19" value="entrena/gobierna leyendo la tabla" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#E8590C;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dbxUC" target="dbxML">
+        <mxCell id="e19" value="entrena/gobierna leyendo la tabla" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#FF3621;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dbxUC" target="dbxML">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e20" value="champion actual" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#E8590C;dashed=1;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dbxML" target="dbxExport">
+        <mxCell id="e20" value="champion actual" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#FF3621;dashed=1;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dbxML" target="dbxExport">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
@@ -224,7 +224,7 @@
           <mxGeometry x="1220" y="985" width="160" height="50" as="geometry" />
         </mxCell>
 
-        <mxCell id="e21" value="export_to_sagemaker sube&#10;model.tar.gz" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#E8590C;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dbxExport" target="s3sm">
+        <mxCell id="e21" value="export_to_sagemaker sube&#10;model.tar.gz" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#FF3621;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dbxExport" target="s3sm">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1000" y="1009" />
@@ -251,7 +251,7 @@
         <mxCell id="gFase4" value="Fase 4 — Capa de IA (sin empezar; borradores en changes/)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#868E96;dashed=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#868E96;" vertex="1" parent="1">
           <mxGeometry x="280" y="1220" width="1240" height="500" as="geometry" />
         </mxCell>
-        <mxCell id="dbxForecast" value="nyctaxi_demand_forecasting (Fase 4.1)&#10;LightGBM · features de calendario + lags&#10;(1h / 24h / 1 semana) · baseline naïve&#10;(pendiente)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2E8;strokeColor=#E8590C;dashed=1;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
+        <mxCell id="dbxForecast" value="nyctaxi_demand_forecasting (Fase 4.1)&#10;LightGBM · features de calendario + lags&#10;(1h / 24h / 1 semana) · baseline naïve&#10;(pendiente)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEDE9;strokeColor=#FF3621;dashed=1;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
           <mxGeometry x="340" y="1300" width="260" height="110" as="geometry" />
         </mxCell>
         <mxCell id="agent" value="Agente NL (Claude, fable-5)&#10;nyctaxi_assistant.py (Fase 4.2)&#10;herramientas: run_sql (solo SELECT)&#10;+ get_fare_quote&#10;(pendiente)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF2FF;strokeColor=#3B5BDB;dashed=1;fontSize=11;fontColor=#343A40;" vertex="1" parent="1">
@@ -261,7 +261,7 @@
           <mxGeometry x="1080" y="1320" width="180" height="60" as="geometry" />
         </mxCell>
 
-        <mxCell id="e27" value="lee la misma tabla&#10;(features históricas)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#E8590C;dashed=1;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0.15;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dbxUC" target="dbxForecast">
+        <mxCell id="e27" value="lee la misma tabla&#10;(features históricas)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;endArrow=block;strokeColor=#FF3621;dashed=1;fontColor=#343A40;labelBackgroundColor=#FFFFFF;exitX=0.15;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dbxUC" target="dbxForecast">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1150" y="1270" />

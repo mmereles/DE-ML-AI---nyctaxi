@@ -14,19 +14,19 @@ flowchart TB
     S3raw --> EBs3["EventBridge<br/>Object Created"]
     EBs3 --> LamTrig["Lambda: processing_trigger"]
     LamTrig -. lee token .-> Secrets[("Secrets Manager")]
-    Backfill["backfill.py"] --> HistLoop["historical_processing_loop"]
-    HistLoop -.-> SchemaAudit["schema_audit"] & EDA["eda"]
+    Backfill["backfill.py"] --> HistLoop["historical_processing_loop"]:::databricks
+    HistLoop -.-> SchemaAudit["schema_audit"]:::databricks & EDA["eda"]:::databricks
 
-    LamTrig -- "POST jobs/run-now" --> Job["Job nyctaxi-processing<br/>(Databricks)"]
-    Job --> Process["process<br/>(nyctaxi - processing)"]
+    LamTrig -- "POST jobs/run-now" --> Job["Job nyctaxi-processing<br/>(Databricks)"]:::databricks
+    Job --> Process["process<br/>(nyctaxi - processing)"]:::databricks
     HistLoop -.-> Process
-    Process --> Delta[("Unity Catalog / Delta<br/>yellow_taxi_features")]
-    Delta --> GTEval["ground_truth_eval"]
-    GTEval --> Train["train<br/>naïve · Ridge · XGBoost"]
-    Train --> Register["register_model<br/>champion en MLflow"]
-    Register --> Promote["promote_champion"]
+    Process --> Delta[("Unity Catalog / Delta<br/>yellow_taxi_features")]:::databricks
+    Delta --> GTEval["ground_truth_eval"]:::databricks
+    GTEval --> Train["train<br/>naïve · Ridge · XGBoost"]:::databricks
+    Train --> Register["register_model<br/>champion en MLflow"]:::databricks
+    Register --> Promote["promote_champion"]:::databricks
 
-    Promote --> ExportSM["zone_pair_stats +<br/>export_to_sagemaker<br/>(hoy manuales)"]
+    Promote --> ExportSM["zone_pair_stats +<br/>export_to_sagemaker<br/>(hoy manuales)"]:::databricks
     ExportSM --> S3sm[("S3 sagemaker/<br/>fare-quote-model/v1/")]
     S3sm --> SageModel["SageMaker Model<br/>Script Mode"]
     SageModel --> SageEndpoint["SageMaker Endpoint<br/>nyctaxi-fare-quote<br/>(Serverless Inference)"]
@@ -40,6 +40,7 @@ flowchart TB
     Usuario["Usuario<br/>pregunta en lenguaje natural"]:::pending --> Agent
 
     classDef pending stroke-dasharray: 5 5,opacity:0.75
+    classDef databricks fill:#FFEDE9,stroke:#FF3621,color:#341F1E
 ```
 
 **Fase 0** (ingesta + prerequisitos) → **Fase 1-2** (processing, ML, MLOps en Databricks) → **Fase 3** (serving en SageMaker, en curso) → **Fase 4** (forecasting + agente NL, sin empezar).
