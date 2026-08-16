@@ -4,58 +4,47 @@ Pipeline de datos e-2-e de **NYC Yellow Taxi** (TLC Trip Record Data): ingesta m
 
 ## Arquitectura
 
-Diagrama completo y editable: [`nyctaxi_architecture.drawio`](nyctaxi_architecture.drawio) (abrir en [app.diagrams.net](https://app.diagrams.net) o con la extensión de draw.io de VS Code — GitHub también lo renderiza al ver el archivo). Cubre las 5 fases del roadmap — Fase 0 (ingesta + prerequisitos), Fase 1-2 (ML + MLOps en Databricks), Fase 3 (serving en SageMaker) y Fase 4 (forecasting de demanda + agente de lenguaje natural, sin empezar) — y distingue visualmente lo implementado (sólido) de lo pendiente (punteado): hoy eso es SNS/email de alertas, `ci.yml`, la Lambda `quote_api` + API Gateway, y toda la Fase 4.
+Las 5 fases del roadmap, de ingesta a capa de IA. Sólido = implementado y validado; punteado = pendiente.
 
-Versión resumida en texto:
+```mermaid
+flowchart TB
+    TLC["NYC TLC<br/>CloudFront público"] --> LamIng
+    EBcron["EventBridge<br/>cron mensual (día 5)"] --> LamIng["Lambda: ingestion"]
+    LamIng --> S3raw[("S3 nyc-taxi-bucket<br/>raw/ · historical/")]
+    S3raw --> EBs3["EventBridge<br/>Object Created"]
+    EBs3 --> LamTrig["Lambda: processing_trigger"]
+    LamTrig -. lee token .-> Secrets[("Secrets Manager")]
+    Backfill["backfill.py"] --> HistLoop["historical_processing_loop"]
+    HistLoop -.-> SchemaAudit["schema_audit"] & EDA["eda"]
 
+    LamTrig -- "POST jobs/run-now" --> Job["Job nyctaxi-processing<br/>(Databricks)"]
+    Job --> Process["process<br/>(nyctaxi - processing)"]
+    HistLoop -.-> Process
+    Process --> Delta[("Unity Catalog / Delta<br/>yellow_taxi_features")]
+    Delta --> GTEval["ground_truth_eval"]
+    GTEval --> Train["train<br/>naïve · Ridge · XGBoost"]
+    Train --> Register["register_model<br/>champion en MLflow"]
+    Register --> Promote["promote_champion"]
+
+    Promote --> ExportSM["zone_pair_stats +<br/>export_to_sagemaker<br/>(hoy manuales)"]
+    ExportSM --> S3sm[("S3 sagemaker/<br/>fare-quote-model/v1/")]
+    S3sm --> SageModel["SageMaker Model<br/>Script Mode"]
+    SageModel --> SageEndpoint["SageMaker Endpoint<br/>nyctaxi-fare-quote<br/>(Serverless Inference)"]
+    QuoteAPI["Lambda: quote_api"]:::pending -. invoke_endpoint IAM .-> SageEndpoint
+    APIGW["API Gateway<br/>POST /quote"]:::pending --> QuoteAPI
+    Cliente["Cliente público"]:::pending --> APIGW
+
+    Delta -. lee la misma tabla .-> Forecast["demand_forecasting<br/>LightGBM (Fase 4.1)"]:::pending
+    Agent["Agente NL — Claude<br/>nyctaxi_assistant.py (Fase 4.2)"]:::pending -. run_sql SELECT-only .-> Delta
+    Agent -. get_fare_quote .-> APIGW
+    Usuario["Usuario<br/>pregunta en lenguaje natural"]:::pending --> Agent
+
+    classDef pending stroke-dasharray: 5 5,opacity:0.75
 ```
-                         ┌────────────────────────┐
-  EventBridge (cron,     │  Lambda: ingestion      │
-  día 5 de cada mes) ───▶│  descarga el parquet    │
-                         │  mensual desde TLC y lo  │
-                         │  sube a S3               │
-                         └───────────┬─────────────┘
-                                     │
-                                     ▼
-                     s3://<bucket>/nyctaxi/raw/year=YYYY/month=MM/
-                                     │
-                         (EventBridge: Object Created)
-                                     │
-                                     ▼
-                         ┌────────────────────────┐
-                         │  Lambda:                │
-                         │  processing_trigger     │
-                         │  dispara el job de      │
-                         │  Databricks vía API     │
-                         └───────────┬─────────────┘
-                                     │
-                                     ▼
-        ┌───────────────────────────────────────────────────────────┐
-        │  Databricks Job (Terraform, provider databricks)            │
-        │                                                               │
-        │  process → ground_truth_eval → train → register_model       │
-        │                                              │                │
-        │                                              ▼                │
-        │                                     promote_champion          │
-        │                                                               │
-        │  (zone_pair_stats / export_to_sagemaker: hoy manuales,        │
-        │   ver "Estado del proyecto")                                  │
-        └───────────────────────────┬───────────────────────────────┘
-                                     │  export_to_sagemaker sube
-                                     │  model.tar.gz a S3
-                                     ▼
-                    ┌─────────────────────────────────────┐
-                    │  AWS SageMaker (Serverless Inference)  │
-                    │  Model + EndpointConfig + Endpoint     │
-                    │  Script Mode: sagemaker/inference.py    │
-                    └───────────────────┬─────────────────┘
-                                        │  invoke_endpoint (IAM)
-                                        ▼
-                    ┌─────────────────────────────────────┐
-                    │  Lambda: quote_api (Fase 3, en curso)  │
-                    │  API Gateway → POST /quote              │
-                    └─────────────────────────────────────┘
-```
+
+**Fase 0** (ingesta + prerequisitos) → **Fase 1-2** (processing, ML, MLOps en Databricks) → **Fase 3** (serving en SageMaker, en curso) → **Fase 4** (forecasting + agente NL, sin empezar).
+
+Diagrama editable con más detalle (íconos AWS, agrupado por servicio): [`nyctaxi_architecture.drawio`](nyctaxi_architecture.drawio), para abrir en [app.diagrams.net](https://app.diagrams.net).
 
 Todas las Lambdas publican métricas custom en CloudWatch (`NYCTaxiDownload`, `NYCTaxiProcessing`) con alarmas asociadas ante errores de ejecución.
 
