@@ -42,3 +42,13 @@ output "databricks_processing_instance_profile_arn" {
   description = "ARN to register as an Instance Profile in the Databricks account console (Compute > Instance profiles), then attach to the job cluster running the processing notebook, so it can call cloudwatch:PutMetricData"
   value       = aws_iam_instance_profile.databricks_processing_instance_profile.arn
 }
+
+output "sagemaker_endpoint_name" {
+  description = "Nombre del endpoint de SageMaker, para SAGEMAKER_ENDPOINT_NAME de la Lambda"
+  value       = aws_sagemaker_endpoint.fare_quote.name
+}
+
+output "quote_api_url" {
+  description = "URL publica de la API de cotizacion"
+  value       = "${aws_apigatewayv2_api.quote_api.api_endpoint}/quote"
+}

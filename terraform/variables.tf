@@ -7,8 +7,20 @@ variable "databricks_host" {
 }
 
 ## GitHub
-variable "git_repo_url"{
+variable "git_repo_url" {
   description = "Git URL for this repo, used to sync notebooks into the Databrics Workspace"
-  type = string
-  default = "https://github.com/mmereles/DE-ML-AI---nyctaxi"
+  type        = string
+  default     = "https://github.com/mmereles/DE-ML-AI---nyctaxi"
+}
+
+variable "model_version" {
+  description = "Version del modelo en s3"
+  type        = string
+  default     = "1"
+}
+
+variable "sagemaker_xgboost_image" {
+  description = "Imagen ECR del contenedor XGBoost de SageMaker"
+  type        = string
+  default     = "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-xgboost:1.7-1"
 }
