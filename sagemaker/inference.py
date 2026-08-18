@@ -18,9 +18,19 @@ def model_fn(model_dir):
         os.path.join(model_dir, "zone_pair_stats.parquet")
     ).set_index(["PULocationID", "DOLocationID"])
 
-    borough_stats = pd.read_parquet(
-        os.path.join(model_dir, "zone_pair_stats_borough.parquet")
-    ).set_index(["PUBorough", "DOBorough"])
+    # Opcional: puede faltar si el artefacto se armo con una version vieja
+    # de nyctaxi_export_to_sagemaker.py - degrada al fallback global en vez
+    # de tirar abajo el container entero (model_fn corre en el healthcheck
+    # de arranque; una excepcion aca deja el endpoint sin poder levantar).
+    try:
+        borough_stats = pd.read_parquet(
+            os.path.join(model_dir, "zone_pair_stats_borough.parquet")
+        ).set_index(["PUBorough", "DOBorough"])
+    except FileNotFoundError:
+        borough_stats = pd.DataFrame(
+            columns=["median_trip_distance"],
+            index=pd.MultiIndex.from_tuples([], names=["PUBorough", "DOBorough"]),
+        )
 
     global_stats = pd.read_parquet(
         os.path.join(model_dir, "zone_pair_stats_global.parquet")
