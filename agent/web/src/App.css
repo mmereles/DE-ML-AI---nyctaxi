@@ -42,9 +42,19 @@
 
 body {
   margin: 0;
-  background: var(--page-bg);
+  min-height: 100vh;
+  background: var(--page-bg) url("./skyline-bg.svg") no-repeat bottom center / 1600px auto fixed;
   color: var(--ink);
   font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    /* el SVG esta dibujado en tono oscuro solido (pensado para el fondo
+       amarillo claro) - invertido, el skyline queda claro contra el fondo
+       casi negro del modo oscuro en vez de desaparecer */
+    filter: invert(1);
+  }
 }
 
 main {
@@ -97,6 +107,7 @@ header .sub {
 
 .field {
   flex: 1;
+  min-width: 0; /* sin esto el <select> se estira al ancho de su opcion mas larga y desborda la card */
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -117,6 +128,7 @@ input[type="text"],
 input[type="password"],
 input[type="number"],
 input[type="datetime-local"] {
+  width: 100%;
   padding: 9px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
