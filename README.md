@@ -47,7 +47,9 @@ flowchart TB
 
 **Fase 0** (ingesta + prerequisitos) → **Fase 1-2** (processing, ML, MLOps en Databricks) → **Fase 3** (serving en SageMaker + API pública) → **Fase 4.1** (forecasting de demanda) → **Fase 4.2** (agente conversacional BYOK + frontend web).
 
-Diagrama editable con más detalle (íconos AWS, agrupado por servicio): [`nyctaxi_architecture.drawio`](nyctaxi_architecture.drawio), para abrir en [app.diagrams.net](https://app.diagrams.net).
+Versión con íconos reales de AWS/Databricks, agrupada por servicio (fuente editable: [`nyctaxi_architecture.drawio`](nyctaxi_architecture.drawio), para abrir en [app.diagrams.net](https://app.diagrams.net)):
+
+![Diagrama de arquitectura con íconos de AWS y Databricks](nyctaxi_architecture.svg)
 
 Todas las Lambdas publican métricas custom en CloudWatch (`NYCTaxiDownload`, `NYCTaxiProcessing`) con alarmas asociadas ante errores de ejecución.
 
