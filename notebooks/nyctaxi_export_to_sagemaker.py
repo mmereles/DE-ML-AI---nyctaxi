@@ -65,7 +65,8 @@ zone_lookup_pdf = pd.read_csv("https://d37ci6vzurychx.cloudfront.net/misc/taxi_z
 zone_flags = {
     str(int(row["LocationID"])): {
         "is_manhattan": bool(row["Borough"] == "Manhattan"),
-        "is_airport": bool(row["service_zone"] == "Airports")
+        "is_airport": bool(row["service_zone"] == "Airports"),
+        "borough": row["Borough"]
     }
     for _, row in zone_lookup_pdf.iterrows()
 }
@@ -91,6 +92,13 @@ zone_pair_stats_pdf = spark.table("nyc_taxi_analytics.fare_prediction.zone_pair_
 zone_pair_stats_pdf.attrs.clear()
 zone_pair_stats_pdf.to_parquet(f"{BUILD_DIR}/zone_pair_stats_global.parquet")
 
+# Fallback intermedio por (PUBorough, DOBorough) - ver nyctaxi_zone_pair_stats.py
+# para el porque: mucho mas representativo que el fallback global para pares
+# de zonas perifericos con poca o ninguna historia.
+zone_pair_stats_borough_pdf = spark.table("nyc_taxi_analytics.fare_prediction.zone_pair_stats_borough").toPandas()
+zone_pair_stats_borough_pdf.attrs.clear()
+zone_pair_stats_borough_pdf.to_parquet(f"{BUILD_DIR}/zone_pair_stats_borough.parquet")
+
 # COMMAND ----------
 
 # MAGIC %md ##### 4 - Copiar el codigo de inference (script mode)
@@ -111,7 +119,7 @@ shutil.copy(f"{repo_sagemaker_dir}/requirements.txt", f"{BUILD_DIR}/code/require
 tar_path = f"{BUILD_DIR}/model.tar.gz"
 with tarfile.open(tar_path, "w:gz") as tar:
     for name in ["xgboost-model.json", "zone_flags.json", "zone_pair_stats.parquet",
-                  "zone_pair_stats_global.parquet"]:
+                  "zone_pair_stats_global.parquet", "zone_pair_stats_borough.parquet"]:
         tar.add(f"{BUILD_DIR}/{name}", arcname=name)
     tar.add(f"{BUILD_DIR}/code", arcname="code")
 

@@ -35,9 +35,14 @@ def _fake_model(monkeypatch, predicted_fare=42.0):
     )
 
     zone_flags = {
-        "132": {"is_manhattan": False, "is_airport": True},   # JFK
-        "230": {"is_manhattan": True, "is_airport": False},   # Manhattan
+        "132": {"is_manhattan": False, "is_airport": True, "borough": "Queens"},    # JFK
+        "230": {"is_manhattan": True, "is_airport": False, "borough": "Manhattan"},  # Manhattan
     }
+
+    borough_stats = pd.DataFrame(
+        [{"median_trip_distance": 8.4, "median_tolls": 1.2, "trip_count": 5000}],
+        index=pd.MultiIndex.from_tuples([("Queens", "Manhattan")], names=["PUBorough", "DOBorough"]),
+    )
 
     booster = MagicMock()
     booster.feature_names = FEATURE_NAMES
@@ -54,6 +59,7 @@ def _fake_model(monkeypatch, predicted_fare=42.0):
     model = {
         "booster": booster,
         "zone_stats": zone_stats,
+        "borough_stats": borough_stats,
         "global_distance": 1.7,
         "zone_flags": zone_flags,
     }
@@ -96,30 +102,50 @@ def test_output_fn_serializes_prediction_to_json():
 # _estimate_distance
 # ---------------------------------------------------------------------------
 
+EMPTY_BOROUGH_STATS = pd.DataFrame(
+    columns=["median_trip_distance"],
+    index=pd.MultiIndex.from_tuples([], names=["PUBorough", "DOBorough"]),
+)
+
+
 def test_estimate_distance_uses_pair_median_when_reliable():
     zone_stats = pd.DataFrame(
         [{"median_trip_distance": 17.61, "reliable": True}],
         index=pd.MultiIndex.from_tuples([(132, 230)], names=["PULocationID", "DOLocationID"]),
     )
-    distance = inference._estimate_distance(132, 230, zone_stats, global_distance=1.7)
+    distance = inference._estimate_distance(
+        132, 230, zone_stats, EMPTY_BOROUGH_STATS, zone_flags={}, global_distance=1.7
+    )
     assert distance == 17.61
 
 
-def test_estimate_distance_falls_back_when_pair_unreliable():
+def test_estimate_distance_falls_back_to_borough_when_pair_unreliable():
     zone_stats = pd.DataFrame(
         [{"median_trip_distance": 0.2, "reliable": False}],
         index=pd.MultiIndex.from_tuples([(1, 2)], names=["PULocationID", "DOLocationID"]),
     )
-    distance = inference._estimate_distance(1, 2, zone_stats, global_distance=1.7)
-    assert distance == 1.7
+    borough_stats = pd.DataFrame(
+        [{"median_trip_distance": 9.3}],
+        index=pd.MultiIndex.from_tuples([("Bronx", "Brooklyn")], names=["PUBorough", "DOBorough"]),
+    )
+    zone_flags = {
+        "1": {"borough": "Bronx"},
+        "2": {"borough": "Brooklyn"},
+    }
+    distance = inference._estimate_distance(
+        1, 2, zone_stats, borough_stats, zone_flags, global_distance=1.7
+    )
+    assert distance == 9.3
 
 
-def test_estimate_distance_falls_back_when_pair_missing():
+def test_estimate_distance_falls_back_to_global_when_pair_and_borough_missing():
     zone_stats = pd.DataFrame(
         [{"median_trip_distance": 17.61, "reliable": True}],
         index=pd.MultiIndex.from_tuples([(132, 230)], names=["PULocationID", "DOLocationID"]),
     )
-    distance = inference._estimate_distance(999, 998, zone_stats, global_distance=1.7)
+    distance = inference._estimate_distance(
+        999, 998, zone_stats, EMPTY_BOROUGH_STATS, zone_flags={}, global_distance=1.7
+    )
     assert distance == 1.7
 
 
@@ -180,3 +206,21 @@ def test_predict_fn_falls_back_to_global_distance_for_unknown_pair(monkeypatch):
     assert df["dropoff_manhattan"].iloc[0] == 0
     assert df["manhattan_trip"].iloc[0] == 0
     assert df["is_airport_trip"].iloc[0] == 0
+
+
+def test_predict_fn_clamps_negative_prediction_to_min_fare(monkeypatch):
+    # Este es el bug real que se vio en produccion: para pares de zonas poco
+    # vistos, el booster puede extrapolar a negativo. Ninguna tarifa de taxi
+    # real es negativa - predict_fn tiene que pisarlo a MIN_FARE, nunca
+    # devolver la salida cruda del regressor.
+    model, _ = _fake_model(monkeypatch, predicted_fare=-7.84)
+
+    input_data = {
+        "PULocationID": 132,
+        "DOLocationID": 230,
+        "pickup_datetime": "2026-08-15T18:00:00",
+        "passenger_count": 1,
+    }
+
+    result = inference.predict_fn(input_data, model)
+    assert result == {"estimated_fare_total": inference.MIN_FARE}

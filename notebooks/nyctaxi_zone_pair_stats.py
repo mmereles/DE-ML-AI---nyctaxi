@@ -66,6 +66,41 @@ print(f"Fallback global - distance: {global_stats['global_median_distance']}, pe
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC Fallback intermedio por (PUBorough, DOBorough): el fallback global sale
+# MAGIC corto porque el dataset esta dominado por viajes cortos en/cerca de
+# MAGIC Manhattan. Un par de zonas periferico y poco visto (ej. Bronx->Brooklyn)
+# MAGIC terminaba con una distancia estimada de viaje-Manhattan-tipico, lejos de
+# MAGIC la real - el modelo quedaba prediciendo sobre una combinacion de
+# MAGIC features (distancia corta + ninguna punta en Manhattan) que casi no
+# MAGIC existe en el entrenamiento, y extrapolaba a tarifas negativas. La
+# MAGIC mediana por par de boroughs es un fallback intermedio, mucho mas
+# MAGIC representativo que el global, sin necesitar cobertura por par de zonas.
+
+# COMMAND ----------
+
+zone_lookup = spark.table("nyc_taxi_analytics.fare_prediction.taxi_zone_lookup")
+
+features_borough = (
+    features
+    .join(zone_lookup.select(F.col("LocationID").alias("PULocationID"), F.col("Borough").alias("PUBorough")), "PULocationID")
+    .join(zone_lookup.select(F.col("LocationID").alias("DOLocationID"), F.col("Borough").alias("DOBorough")), "DOLocationID")
+)
+
+zone_pair_stats_borough = (
+    features_borough
+    .groupBy("PUBorough", "DOBorough")
+    .agg(
+        F.percentile_approx("trip_distance", 0.5).alias("median_trip_distance"),
+        F.percentile_approx("tolls_amount", 0.5).alias("median_tolls"),
+        F.count("*").alias("trip_count")
+    )
+    .withColumn("median_trip_distance", F.round("median_trip_distance", 2))
+)
+zone_pair_stats_borough.display()
+
+# COMMAND ----------
+
 # MAGIC %md guardo como tabla Delta (overwrite completo: es una tabla derivada chica)
 
 # COMMAND ----------
@@ -82,4 +117,13 @@ spark.createDataFrame([global_stats.asDict()]).write.mode("overwrite").saveAsTab
 
 # COMMAND ----------
 
+# MAGIC %md El fallback por borough tambien se persiste
+
+# COMMAND ----------
+
+zone_pair_stats_borough.write.mode("overwrite").saveAsTable("nyc_taxi_analytics.fare_prediction.zone_pair_stats_borough")
+
+# COMMAND ----------
+
 print(f"✅ zone_pair_stats: {zone_pair_stats.count():,} pares guardados")
+print(f"✅ zone_pair_stats_borough: {zone_pair_stats_borough.count():,} pares de borough guardados")

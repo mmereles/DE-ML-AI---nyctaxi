@@ -4,13 +4,23 @@ import os
 import pandas as pd
 import xgboost as xgb
 
+# Ninguna tarifa real de taxi es negativa - piso de seguridad para el
+# regressor, que no tiene garantia de salida no-negativa (ver
+# _estimate_distance: cuando extrapola fuera de la distribucion de
+# entrenamiento puede devolver cualquier cosa).
+MIN_FARE = 3.00
+
 def model_fn(model_dir):
     booster = xgb.Booster()
     booster.load_model(os.path.join(model_dir, "xgboost-model.json"))
-    
+
     zone_stats = pd.read_parquet(
         os.path.join(model_dir, "zone_pair_stats.parquet")
     ).set_index(["PULocationID", "DOLocationID"])
+
+    borough_stats = pd.read_parquet(
+        os.path.join(model_dir, "zone_pair_stats_borough.parquet")
+    ).set_index(["PUBorough", "DOBorough"])
 
     global_stats = pd.read_parquet(
         os.path.join(model_dir, "zone_pair_stats_global.parquet")
@@ -22,6 +32,7 @@ def model_fn(model_dir):
     return {
         "booster": booster,
         "zone_stats": zone_stats,
+        "borough_stats": borough_stats,
         "global_distance": float(global_stats["global_median_distance"]),
         "zone_flags": zone_flags
     }
@@ -31,15 +42,31 @@ def input_fn(request_body, request_content_type):
         raise ValueError("This model only supports application/json input")
     return json.loads(request_body)
 
-def _estimate_distance(pu, do, zone_stats, global_distance):
-    # Mediana historica del par; fallback global si el par no existe o es
-    # poco confiable (< 10 viajes historicos)
+def _estimate_distance(pu, do, zone_stats, borough_stats, zone_flags, global_distance):
+    # 1. Mediana historica del par exacto, si es confiable (>= 10 viajes)
     try:
         row = zone_stats.loc[(pu, do)]
         if bool(row["reliable"]):
             return float(row["median_trip_distance"])
     except KeyError:
         pass
+
+    # 2. Fallback por par de boroughs (ej. Bronx -> Brooklyn): mucho mas
+    # representativo que el global para pares perifericos con poca o
+    # ninguna historia - el global sale corto porque el dataset esta
+    # dominado por viajes cortos en/cerca de Manhattan, y esa distancia
+    # corta puesta en un par sin ninguna punta en Manhattan es una
+    # combinacion de features que el modelo casi no vio entrenar (ver
+    # nyctaxi_zone_pair_stats.py para el detalle).
+    try:
+        pu_borough = zone_flags[str(pu)]["borough"]
+        do_borough = zone_flags[str(do)]["borough"]
+        row = borough_stats.loc[(pu_borough, do_borough)]
+        return float(row["median_trip_distance"])
+    except KeyError:
+        pass
+
+    # 3. Fallback global: ningun dato para esta combinacion de boroughs
     return global_distance
 
 def predict_fn(input_data, model):
@@ -63,17 +90,17 @@ def predict_fn(input_data, model):
 
     # Distancia estimada desde zone_pair_stats (el reemplazo del taximetro)
     zone_stats = model["zone_stats"]
+    borough_stats = model["borough_stats"]
+    zone_flags = model["zone_flags"]
     global_distance = model["global_distance"]
     df["trip_distance"] = [
-        _estimate_distance(pu, do, zone_stats, global_distance)
+        _estimate_distance(pu, do, zone_stats, borough_stats, zone_flags, global_distance)
         for pu, do in zip(df["PULocationID"], df["DOLocationID"])
     ]
 
     # Flags de zona desde zone_flags.json (Borough/service_zone reales de TLC),
     # no hardcodeadas - mismo criterio de load_zone_categories() en
     # 'nyctaxi - processing.py'
-    zone_flags = model["zone_flags"]
-
     def is_manhattan(zone_id):
         return bool(zone_flags.get(str(zone_id), {}).get("is_manhattan", False))
     
@@ -98,8 +125,8 @@ def predict_fn(input_data, model):
 
     # Modelo XGBoost
     dmatrix = xgb.DMatrix(df)
-    prediction = model["booster"].predict(dmatrix)
-    return {"estimated_fare_total": float(prediction[0])}
+    prediction = max(float(model["booster"].predict(dmatrix)[0]), MIN_FARE)
+    return {"estimated_fare_total": prediction}
 
 def output_fn(prediction, accept):
     return json.dumps(prediction), "application/json"
