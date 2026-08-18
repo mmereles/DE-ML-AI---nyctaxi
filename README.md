@@ -1,85 +1,85 @@
-# NYC Yellow Taxi — Data Pipeline + ML + MLOps + Serving + Agente de IA
+# NYC Yellow Taxi — Data Pipeline + ML + MLOps + Serving + AI Agent
 
-Proyecto e-2-e sobre **NYC Yellow Taxi** (TLC Trip Record Data), de punta a punta: ingesta mensual automatizada hacia S3, procesamiento y feature engineering en Databricks (Delta Lake + Unity Catalog), entrenamiento y gobierno del modelo de predicción de tarifa (MLOps con champion/challenger), serving en producción vía AWS SageMaker, forecasting de demanda, y un agente conversacional (BYOK) con frontend web público. Infraestructura como código con Terraform (providers `aws` + `databricks` en el mismo state).
+End-to-end project on **NYC Yellow Taxi** (TLC Trip Record Data), start to finish: automated monthly ingestion into S3, processing and feature engineering in Databricks (Delta Lake + Unity Catalog), fare-prediction model training and governance (MLOps with champion/challenger), production serving via AWS SageMaker, demand forecasting, and a conversational agent (BYOK) with a public web frontend. Infrastructure as code with Terraform (`aws` + `databricks` providers in the same state).
 
-**Demo en vivo:** [mmereles.github.io/DE-ML-AI---nyctaxi](https://mmereles.github.io/DE-ML-AI---nyctaxi/) — cotización instantánea sin costo, y un chat donde cada visitante usa su propia key de OpenAI.
+**Live demo:** [mmereles.github.io/DE-ML-AI---nyctaxi](https://mmereles.github.io/DE-ML-AI---nyctaxi/) — instant, free fare quotes, plus a chat where each visitor brings their own OpenAI key.
 
-## Arquitectura
+## Architecture
 
-Las 5 fases del roadmap, de ingesta a capa de IA — todas implementadas y desplegadas. Íconos reales de AWS/Databricks, agrupado por servicio (fuente editable: [`nyctaxi_architecture.drawio`](nyctaxi_architecture.drawio), para abrir en [app.diagrams.net](https://app.diagrams.net)):
+All 5 phases of the roadmap, from ingestion to the AI layer — all implemented and deployed. Real AWS/Databricks icons, grouped by service (editable source: [`nyctaxi_architecture.drawio`](nyctaxi_architecture.drawio), open it in [app.diagrams.net](https://app.diagrams.net)):
 
-![Diagrama de arquitectura con íconos de AWS y Databricks](nyctaxi_architecture.svg)
+![Architecture diagram with AWS and Databricks icons](nyctaxi_architecture.svg)
 
-**Fase 0** (ingesta + prerequisitos) → **Fase 1-2** (processing, ML, MLOps en Databricks) → **Fase 3** (serving en SageMaker + API pública) → **Fase 4.1** (forecasting de demanda) → **Fase 4.2** (agente conversacional BYOK + frontend web).
+**Phase 0** (ingestion + prerequisites) → **Phase 1-2** (processing, ML, MLOps in Databricks) → **Phase 3** (serving on SageMaker + public API) → **Phase 4.1** (demand forecasting) → **Phase 4.2** (BYOK conversational agent + web frontend).
 
-Todas las Lambdas publican métricas custom en CloudWatch (`NYCTaxiDownload`, `NYCTaxiProcessing`) con alarmas asociadas ante errores de ejecución.
+All Lambdas publish custom metrics to CloudWatch (`NYCTaxiDownload`, `NYCTaxiProcessing`) with alarms tied to execution errors.
 
-## Componentes
+## Components
 
 ### `lambda/`
 
-- **`ingestion.py`** — cron mensual (EventBridge, día 5 08:00 UTC). Calcula el mes anterior, evita redescargar si el archivo ya existe en S3 (`head_object`), descarga desde el CloudFront de TLC (`d37ci6vzurychx.cloudfront.net`) y sube a `s3://<bucket>/nyctaxi/raw/year=YYYY/month=MM/`. Reintenta hasta 3 veces, reporta duración/tamaño/throughput a CloudWatch.
-- **`processing_trigger.py`** — disparado por EventBridge ante un objeto nuevo bajo `nyctaxi/raw/`. Extrae `year`/`month` del key, obtiene el token de Databricks desde Secrets Manager y llama `POST /api/2.1/jobs/run-now` para lanzar el job de Databricks.
-- **`quote_api.py`** (Fase 3) — Lambda detrás de API Gateway: valida el pedido público (`pickup_zone`, `dropoff_zone`, `pickup_datetime`, `passenger_count`), lo traduce al formato que espera `sagemaker/inference.py`, y llama al endpoint de SageMaker vía `sagemaker-runtime.invoke_endpoint` (IAM, sin token/secreto). Sin costo ni key para el visitante — la usa tanto el formulario de `agent/web/` como la tool `get_fare_quote` del agente.
-- **`requirements.txt`** — dependencias de `ingestion.py`/`processing_trigger.py`/`quote_api.py` (`requests`; `boto3` viene con el runtime). No se versionan las instaladas — se generan en build/deploy apuntando al runtime real de Lambda (ver sección Despliegue).
+- **`ingestion.py`** — monthly cron (EventBridge, day 5, 08:00 UTC). Computes the previous month, skips re-downloading if the file already exists in S3 (`head_object`), downloads from TLC's CloudFront (`d37ci6vzurychx.cloudfront.net`), and uploads to `s3://<bucket>/nyctaxi/raw/year=YYYY/month=MM/`. Retries up to 3 times, reports duration/size/throughput to CloudWatch.
+- **`processing_trigger.py`** — triggered by EventBridge on a new object under `nyctaxi/raw/`. Extracts `year`/`month` from the key, fetches the Databricks token from Secrets Manager, and calls `POST /api/2.1/jobs/run-now` to kick off the Databricks job.
+- **`quote_api.py`** (Phase 3) — Lambda behind API Gateway: validates the public request (`pickup_zone`, `dropoff_zone`, `pickup_datetime`, `passenger_count`), translates it into the format `sagemaker/inference.py` expects, and calls the SageMaker endpoint via `sagemaker-runtime.invoke_endpoint` (IAM, no token/secret needed). Free and keyless for visitors — used both by the `agent/web/` quote form and the agent's `get_fare_quote` tool.
+- **`requirements.txt`** — dependencies for `ingestion.py`/`processing_trigger.py`/`quote_api.py` (`requests`; `boto3` ships with the runtime). Installed dependencies aren't versioned — they're generated at build/deploy time targeting the actual Lambda runtime (see Deployment section).
 
-### `agent/` (Fase 4.2 — agente conversacional BYOK)
+### `agent/` (Phase 4.2 — BYOK conversational agent)
 
-- **`backend/ask_agent.py`** — Lambda propia, detrás de una **Function URL** (no API Gateway: el timeout de integración de API Gateway tiene un techo duro de ~29s, insuficiente para un loop de tool-calling con varias vueltas; una Function URL solo está limitada por el timeout de la Lambda, hasta 900s). Recibe `{question, openai_api_key}`, corre un loop de tool-calling con OpenAI (`gpt-4o`) sobre dos herramientas: `run_sql` (SELECT-only contra Unity Catalog, catálogo/schema fijados en la conexión) y `get_fare_quote` (llama a `quote_api`, nunca inventa una tarifa). La key de OpenAI es del visitante — viaja en el request, nunca se guarda ni se loguea; las credenciales de Databricks quedan solo en variables de entorno del lado del servidor.
-- **`web/`** — frontend React + Vite: formulario de cotización directo (sin key, sin costo) y un chat colapsable contra el agente. Desplegado a GitHub Pages vía GitHub Actions (`deploy-web.yml`) en cada push que toque esta carpeta; las URLs de los dos backends se inyectan en build time como variables de repo (`ASK_AGENT_URL`, `QUOTE_API_URL`), nunca hardcodeadas.
+- **`backend/ask_agent.py`** — its own Lambda, behind a **Function URL** (not API Gateway: API Gateway's integration timeout has a hard ~29s ceiling, not enough for a multi-turn tool-calling loop; a Function URL is limited only by the Lambda's own timeout, up to 900s). Receives `{question, openai_api_key}`, runs a tool-calling loop with OpenAI (`gpt-4o`) over two tools: `run_sql` (SELECT-only against Unity Catalog, catalog/schema fixed on the connection) and `get_fare_quote` (calls `quote_api`, never makes up a fare). The OpenAI key belongs to the visitor — it travels in the request, is never stored or logged; Databricks credentials stay only in server-side environment variables.
+- **`web/`** — React + Vite frontend: a direct quote form (no key, no cost) and a collapsible chat against the agent. Deployed to GitHub Pages via GitHub Actions (`deploy-web.yml`) on every push touching this folder; the two backend URLs are injected at build time as repo variables (`ASK_AGENT_URL`, `QUOTE_API_URL`), never hardcoded.
 
-### `notebooks/` (mayormente formato `.py` de Databricks, sincronizados vía `databricks_repo`/Git Folder — `schema_audit` y `eda` siguen en `.ipynb`)
+### `notebooks/` (mostly Databricks `.py` format, synced via `databricks_repo`/Git Folder — `schema_audit` and `eda` are still `.ipynb`)
 
-| Notebook | Fase | Qué hace |
+| Notebook | Phase | What it does |
 |---|---|---|
-| `nyctaxi - processing` | Pipeline base | Bronze → silver → gold: limpieza con reglas de calidad, ~20 features de ingeniería (flags de Manhattan/aeropuerto vía `taxi_zone_lookup`, que este notebook también persiste como tabla real de Unity Catalog), escritura idempotente a Delta (`replaceWhere` por partición) en `yellow_taxi_features`. |
-| `nyctaxi_historical_processing_loop` | 0.1 | Corre después de `backfill.py`: llama a `nyctaxi - processing` una vez por cada mes bajo `nyctaxi/historical/` (prefix separado a propósito, no dispara el trigger automático), para que el histórico entre a `yellow_taxi_features` antes de entrenar. |
-| `nyctaxi_schema_audit` | 0.5 | Lee solo el *schema* (no los datos) de cada mes del backfill y arma una matriz columna × mes, para detectar columnas que TLC agregó a mitad de camino (`congestion_surcharge`, `airport_fee`) antes de asumir un dataset homogéneo. |
-| `nyctaxi_eda` | 0.6 | EDA manual sobre `yellow_taxi_features`: filas por mes, distribución del target, outliers que `clean_data` no filtra, nulls en las features pre-viaje — el último chequeo antes de entrenar. |
-| `nyctaxi_fare_prediction_training` | 1 | Target = `total_amount − tip_amount`; solo features pre-viaje (sin leakage); split temporal; baseline naïve por par origen-destino; Ridge de referencia; XGBoost; tuning opcional; tracking completo en MLflow. Corrida de referencia: XGBoost supera al naïve por 26.3% de MAE. |
-| `nyctaxi_register_model` | 2.1 | Busca el run `xgboost_default` más reciente en el experimento de MLflow, y si supera el umbral de mejora sobre el naïve, lo registra en Unity Catalog Model Registry (`nyc_taxi_analytics.fare_prediction.fare_model`) con alias `champion`. |
-| `nyctaxi_ground_truth_eval` | 2.4 | Corre justo después de `process`, antes de re-entrenar: compara las predicciones que el champion actual hizo el mes pasado contra las tarifas reales que recién llegaron — "ground truth gratis" sin infraestructura de logging extra. |
-| `nyctaxi_promote_champion` | 2.3 | Compara el challenger recién registrado contra el champion actual por `test_mae`; si gana, mueve el alias `champion` a la nueva versión. |
-| `nyctaxi_zone_pair_stats` | 3.1 / 4.2 | Precomputa la mediana histórica de distancia/peajes/tarifa por cada par `(PULocationID, DOLocationID)` — el reemplazo de `trip_distance` (que no existe antes del viaje) para servir cotizaciones. Pares con <10 viajes se marcan `reliable=false`; además arma un fallback intermedio por par de *boroughs* (más representativo que el fallback global para pares de zonas periféricos con poca historia — el global venía dando tarifas negativas en esos casos). |
-| `nyctaxi_export_to_sagemaker` | 3.4 | Empaqueta el champion (booster XGBoost en JSON) + `zone_pair_stats` (par exacto, por borough y global) + flags de zona + `sagemaker/inference.py` en un `model.tar.gz` con layout de Script Mode, y lo sube a S3 vía `dbutils.fs.cp` (el workspace es serverless, sin instance profile clásico). |
-| `nyctaxi_demand_forecasting` | 4.1 | LightGBM sobre `yellow_taxi_features` agregado por zona/hora; genera `demand_forecast` (próximos 7 días) reutilizando el patrón de features en vez de forecasting recursivo real — documentado así a propósito, sin registro en Unity Catalog Model Registry (no se sirve como endpoint). |
+| `nyctaxi - processing` | Base pipeline | Bronze → silver → gold: data-quality cleaning rules, ~20 engineered features (Manhattan/airport flags via `taxi_zone_lookup`, which this notebook also persists as a real Unity Catalog table), idempotent Delta writes (`replaceWhere` per partition) into `yellow_taxi_features`. |
+| `nyctaxi_historical_processing_loop` | 0.1 | Runs after `backfill.py`: calls `nyctaxi - processing` once per month under `nyctaxi/historical/` (a separate prefix on purpose, doesn't trigger the automatic trigger), so the historical backfill lands in `yellow_taxi_features` before training. |
+| `nyctaxi_schema_audit` | 0.5 | Reads only the *schema* (not the data) of each backfilled month and builds a column × month matrix, to catch columns TLC added midway through (`congestion_surcharge`, `airport_fee`) before assuming a homogeneous dataset. |
+| `nyctaxi_eda` | 0.6 | Manual EDA over `yellow_taxi_features`: rows per month, target distribution, outliers `clean_data` doesn't filter, nulls in pre-trip features — the last check before training. |
+| `nyctaxi_fare_prediction_training` | 1 | Target = `total_amount − tip_amount`; pre-trip features only (no leakage); temporal split; naive per-origin-destination baseline; reference Ridge; XGBoost; optional tuning; full MLflow tracking. Reference run: XGBoost beats the naive baseline by 26.3% MAE. |
+| `nyctaxi_register_model` | 2.1 | Finds the most recent `xgboost_default` run in the MLflow experiment, and if it clears the improvement threshold over the naive baseline, registers it in the Unity Catalog Model Registry (`nyc_taxi_analytics.fare_prediction.fare_model`) with the `champion` alias. |
+| `nyctaxi_ground_truth_eval` | 2.4 | Runs right after `process`, before retraining: compares last month's predictions from the current champion against the real fares that just arrived — "free ground truth" with no extra logging infrastructure. |
+| `nyctaxi_promote_champion` | 2.3 | Compares the freshly registered challenger against the current champion on `test_mae`; if it wins, moves the `champion` alias to the new version. |
+| `nyctaxi_zone_pair_stats` | 3.1 / 4.2 | Precomputes the historical median distance/tolls/fare for each `(PULocationID, DOLocationID)` pair — the replacement for `trip_distance` (which doesn't exist before the trip) when serving quotes. Pairs with <10 trips are flagged `reliable=false`; also builds an intermediate fallback by *borough* pair (much more representative than the global fallback for peripheral zone pairs with little history — the global fallback was producing negative fares in those cases). |
+| `nyctaxi_export_to_sagemaker` | 3.4 | Packages the champion (XGBoost booster as JSON) + `zone_pair_stats` (exact pair, borough-level, and global) + zone flags + `sagemaker/inference.py` into a `model.tar.gz` with Script Mode layout, and uploads it to S3 via `dbutils.fs.cp` (the workspace is serverless, no classic instance profile). |
+| `nyctaxi_demand_forecasting` | 4.1 | LightGBM over `yellow_taxi_features` aggregated by zone/hour; generates `demand_forecast` (next 7 days) by reusing the feature pattern rather than true recursive forecasting — documented as such on purpose, no registration in the Unity Catalog Model Registry (not served as an endpoint). |
 
 ### `sagemaker/`
 
-- **`inference.py`** — código Script Mode para el contenedor oficial `sagemaker-xgboost:1.7-1`. Implementa el contrato de 4 funciones (`model_fn`, `input_fn`, `predict_fn`, `output_fn`): reconstruye las features de entrenamiento a partir del input mínimo (`PULocationID`, `DOLocationID`, `pickup_datetime`, `passenger_count`), estimando distancia con una cadena de fallback (par exacto confiable → mediana por borough → mediana global) y calculando flags de Manhattan/aeropuerto desde el lookup real de TLC. La predicción final se clampea a una tarifa mínima — ningún regressor de árboles tiene garantía de salida no negativa, y ninguna tarifa real de taxi lo es.
-- **`requirements.txt`** — `pyarrow`, necesario para que `pd.read_parquet` funcione dentro del contenedor (no viene por defecto).
+- **`inference.py`** — Script Mode code for the official `sagemaker-xgboost:1.7-1` container. Implements the 4-function contract (`model_fn`, `input_fn`, `predict_fn`, `output_fn`): reconstructs training features from the minimal input (`PULocationID`, `DOLocationID`, `pickup_datetime`, `passenger_count`), estimating distance through a fallback chain (exact reliable pair → borough-level median → global median) and computing Manhattan/airport flags from the real TLC lookup. The final prediction is clamped to a minimum fare — no tree-based regressor guarantees non-negative output, and no real taxi fare is negative.
+- **`requirements.txt`** — `pyarrow`, needed for `pd.read_parquet` to work inside the container (not included by default).
 
 ### `terraform/`
 
-Infraestructura como código con dos providers en el mismo state (`aws` ~> 5.9, `databricks` ~> 1.55), región `us-east-1`:
+Infrastructure as code with two providers in the same state (`aws` ~> 5.9, `databricks` ~> 1.55), `us-east-1` region:
 
-- **`main.tf`** — bucket S3, Lambdas de ingesta/trigger, IAM, reglas de EventBridge, alarmas CloudWatch (sin `alarm_actions` todavía — falta SNS), secret de Databricks token.
-- **`databricks.tf`** — credencial Git + `databricks_repo` (sincroniza este repo al workspace) + `databricks_job.processing`, el job con las 5 tasks encadenadas (`process → ground_truth_eval → train → register_model → promote_champion`), con `environment` serverless (sin cluster spec, este workspace es Free Edition).
-- **`sagemaker.tf`** — rol IAM de ejecución (solo lee el artifact + logs), `aws_sagemaker_model` (el nombre incluye el ETag real del artefacto en S3, no un valor fijo — los Modelos de SageMaker son inmutables, así que cualquier redeploy necesita un nombre nuevo para poder reemplazar el recurso sin downtime), `aws_sagemaker_endpoint_configuration`/`aws_sagemaker_endpoint` (Serverless Inference, `create_before_destroy`).
-- **`quote_api.tf`** (Fase 3) — API Gateway HTTP API (`POST /quote`) + integración Lambda + `cors_configuration` (sin esto, cualquier llamada desde el navegador falla en el preflight `OPTIONS`, aunque `curl` funcione bien).
-- **`ask_agent.tf`** (Fase 4.2) — Lambda + Function URL (`authorization_type = "NONE"`, pública a propósito — la key de OpenAI la trae el visitante) + rol IAM acotado (solo logs + leer el secret de Databricks) + deploy vía S3 (el zip pesa ~60MB por las dependencias de `databricks-sql-connector`, por encima del límite de subida directa de Lambda).
-- **`backend.tf`** — state remoto en S3 (`nyctaxi-tfstate-98741313131`), lock nativo (`use_lockfile`, sin DynamoDB).
-- **`variables.tf`** / **`output.tf`** — `databricks_host`, `git_repo_url`, `model_version`, `sagemaker_xgboost_image`, `databricks_sql_warehouse_id`; outputs de ARNs/nombres/URLs de recursos clave.
+- **`main.tf`** — S3 bucket, ingestion/trigger Lambdas, IAM, EventBridge rules, CloudWatch alarms (no `alarm_actions` yet — SNS still missing), Databricks token secret.
+- **`databricks.tf`** — Git credential + `databricks_repo` (syncs this repo to the workspace) + `databricks_job.processing`, the job with 5 chained tasks (`process → ground_truth_eval → train → register_model → promote_champion`), with a serverless `environment` (no cluster spec, this workspace is Free Edition).
+- **`sagemaker.tf`** — execution IAM role (only reads the artifact + logs), `aws_sagemaker_model` (the name includes the real ETag of the S3 artifact, not a fixed value — SageMaker Models are immutable, so any redeploy needs a new name to be able to replace the resource without downtime), `aws_sagemaker_endpoint_configuration`/`aws_sagemaker_endpoint` (Serverless Inference, `create_before_destroy`).
+- **`quote_api.tf`** (Phase 3) — API Gateway HTTP API (`POST /quote`) + Lambda integration + `cors_configuration` (without this, any call from the browser fails at the `OPTIONS` preflight, even though `curl` works fine).
+- **`ask_agent.tf`** (Phase 4.2) — Lambda + Function URL (`authorization_type = "NONE"`, public on purpose — the visitor brings the OpenAI key) + a scoped IAM role (only logs + reading the Databricks secret) + S3-based deploy (the zip weighs ~60MB due to `databricks-sql-connector`'s dependencies, above Lambda's direct-upload limit).
+- **`backend.tf`** — remote state in S3 (`nyctaxi-tfstate-98741313131`), native locking (`use_lockfile`, no DynamoDB).
+- **`variables.tf`** / **`output.tf`** — `databricks_host`, `git_repo_url`, `model_version`, `sagemaker_xgboost_image`, `databricks_sql_warehouse_id`; outputs for ARNs/names/URLs of key resources.
 
-### `backfill.py` (raíz)
+### `backfill.py` (root)
 
-Descarga N meses hacia atrás desde el CloudFront de TLC y los sube a `nyctaxi/historical/` — prefix separado a propósito de `nyctaxi/raw/` para no disparar el processing automático. Se procesa manualmente, una vez, con `nyctaxi_historical_processing_loop`.
+Downloads N months back from TLC's CloudFront and uploads them to `nyctaxi/historical/` — a prefix kept separate from `nyctaxi/raw/` on purpose, to avoid triggering automatic processing. Processed manually, once, with `nyctaxi_historical_processing_loop`.
 
 ### `tests/`
 
-35 tests con `pytest` (`monkeypatch`/`MagicMock`, sin credenciales ni llamadas reales): las 3 Lambdas de `lambda/` y `sagemaker/inference.py` (incluye el fallback de distancia por borough y el clamp de tarifa mínima).
+35 tests with `pytest` (`monkeypatch`/`MagicMock`, no credentials or real calls): the 3 Lambdas in `lambda/` and `sagemaker/inference.py` (including the borough-level distance fallback and the minimum-fare clamp).
 
-## Requisitos
+## Requirements
 
-- Cuenta AWS con permisos para los recursos de Terraform.
-- Terraform >= 1.5.0 (subir a >= 1.10 si se usa el lock nativo de `backend.tf` con una versión anterior).
-- Workspace de Databricks (Free Edition, serverless) con Unity Catalog habilitado.
-- Personal Access Token de Databricks en Secrets Manager (`nyctaxi/databricks-token`), y el token del provider Terraform disponible como `DATABRICKS_TOKEN` al aplicar (no se hardcodea en ningún `.tf`).
-- External Location de Unity Catalog cubriendo `s3://<bucket>/` (o al menos `/nyctaxi/` y `/sagemaker/`) para que los notebooks puedan leer/escribir en S3.
-- Para el frontend (`agent/web/`): Node 20+, y en GitHub — Settings → Pages → Source = "GitHub Actions", más las variables de repo `ASK_AGENT_URL` y `QUOTE_API_URL` (outputs de `terraform apply`, no son secretas — el visitante las ve igual en el navegador).
-- Para el chat del agente: cada visitante necesita su propia API key de OpenAI (BYOK) — el dueño del proyecto no paga ni expone su cuenta sin importar cuánta gente pruebe la demo.
+- AWS account with permissions for the Terraform resources.
+- Terraform >= 1.5.0 (bump to >= 1.10 if using `backend.tf`'s native lock on an earlier version).
+- Databricks workspace (Free Edition, serverless) with Unity Catalog enabled.
+- Databricks Personal Access Token in Secrets Manager (`nyctaxi/databricks-token`), and the Terraform provider token available as `DATABRICKS_TOKEN` when applying (never hardcoded in any `.tf` file).
+- Unity Catalog External Location covering `s3://<bucket>/` (or at least `/nyctaxi/` and `/sagemaker/`) so notebooks can read/write to S3.
+- For the frontend (`agent/web/`): Node 20+, and on GitHub — Settings → Pages → Source = "GitHub Actions", plus the repo variables `ASK_AGENT_URL` and `QUOTE_API_URL` (outputs of `terraform apply`, not secret — visitors see them the same way in the browser).
+- For the agent chat: each visitor needs their own OpenAI API key (BYOK) — the project owner pays nothing and exposes no account, no matter how many people try the demo.
 
-## Despliegue
+## Deployment
 
 ```bash
 pip install \
@@ -106,33 +106,33 @@ terraform plan
 terraform apply
 ```
 
-> Las dependencias instaladas en `lambda/` y `agent/backend/` no se versionan en git (ver `.gitignore`) — se generan en cada build/deploy.
+> Dependencies installed into `lambda/` and `agent/backend/` aren't versioned in git (see `.gitignore`) — they're generated on every build/deploy.
 
-El frontend se despliega solo: cualquier push a `main` que toque `agent/web/**` dispara `.github/workflows/deploy-web.yml`, que compila con Vite y publica a GitHub Pages. `.github/workflows/terraform.yml` corre `plan` en cada PR que toque `terraform/`/`lambda/` y `apply` en cada push a `main` (rol OIDC, sin access keys guardadas en GitHub).
+The frontend deploys itself: any push to `main` touching `agent/web/**` triggers `.github/workflows/deploy-web.yml`, which builds with Vite and publishes to GitHub Pages. `.github/workflows/terraform.yml` runs `plan` on every PR touching `terraform/`/`lambda/` and `apply` on every push to `main` (OIDC role, no access keys stored in GitHub).
 
-## Monitoreo
+## Monitoring
 
 - **CloudWatch Logs**: `/aws/lambda/nyctaxi-data-ingestion`, `/aws/lambda/nyctaxi-processing-trigger`, `/aws/lambda/nyctaxi-quote-api`, `/aws/lambda/nyctaxi-ask-agent`, `/aws/sagemaker/Endpoints/nyctaxi-fare-quote`.
-- **Métricas custom**: namespace `NYCTaxiDownload` (`JobSuccess`, `JobFailure`, `JobSkipped`, `DownloadDuration`, `UploadDuration`, `FileSize`, `FileSizeMB`, `DownloadThroughput`) y `NYCTaxiProcessing` (`JobTriggered`).
-- **Alarmas**: `nyctaxi-ingestion-lambda-errors`, `nyctaxi-processing-lambda-errors` — se disparan ante errores no controlados, pero **sin destino configurado todavía** (ver abajo).
+- **Custom metrics**: namespace `NYCTaxiDownload` (`JobSuccess`, `JobFailure`, `JobSkipped`, `DownloadDuration`, `UploadDuration`, `FileSize`, `FileSizeMB`, `DownloadThroughput`) and `NYCTaxiProcessing` (`JobTriggered`).
+- **Alarms**: `nyctaxi-ingestion-lambda-errors`, `nyctaxi-processing-lambda-errors` — fire on unhandled errors, but **with no destination configured yet** (see below).
 
-## Estado del proyecto
+## Project status
 
-**Hecho y validado — las 5 fases completas y desplegadas:**
-- [x] Ingesta mensual automatizada + trigger event-driven del processing.
-- [x] Processing con feature engineering (~20 features) a Delta Lake / Unity Catalog.
-- [x] Backfill histórico cargado y auditado (schema + EDA).
-- [x] Fase 1 — modelo XGBoost, supera al baseline naïve por 26.3% de MAE.
-- [x] Fase 2 — registry, retraining, ground truth loop y promoción champion/challenger, corriendo como job real de Databricks.
-- [x] Fase 3 — API pública de cotización (`quote_api` + API Gateway) sobre el modelo servido en SageMaker (Serverless Inference).
-- [x] Fase 4.1 — forecasting de demanda con LightGBM (`demand_forecast`).
-- [x] Fase 4.2 — agente conversacional BYOK (Lambda Function URL, OpenAI tool-calling sobre `run_sql`/`get_fare_quote`) + frontend React desplegado en GitHub Pages.
-- [x] Suite de 35 tests (`pytest`) sobre las Lambdas y `inference.py`.
-- [x] CI/CD: `terraform.yml` (plan/apply vía OIDC) + `deploy-web.yml` (deploy automático del frontend).
-- [x] Backend remoto de Terraform (S3 + lock nativo).
+**Done and validated — all 5 phases complete and deployed:**
+- [x] Automated monthly ingestion + event-driven processing trigger.
+- [x] Processing with feature engineering (~20 features) into Delta Lake / Unity Catalog.
+- [x] Historical backfill loaded and audited (schema + EDA).
+- [x] Phase 1 — XGBoost model, beats the naive baseline by 26.3% MAE.
+- [x] Phase 2 — registry, retraining, ground truth loop, and champion/challenger promotion, running as a real Databricks job.
+- [x] Phase 3 — public quote API (`quote_api` + API Gateway) on top of the model served on SageMaker (Serverless Inference).
+- [x] Phase 4.1 — demand forecasting with LightGBM (`demand_forecast`).
+- [x] Phase 4.2 — BYOK conversational agent (Lambda Function URL, OpenAI tool-calling over `run_sql`/`get_fare_quote`) + React frontend deployed on GitHub Pages.
+- [x] 35-test suite (`pytest`) covering the Lambdas and `inference.py`.
+- [x] CI/CD: `terraform.yml` (plan/apply via OIDC) + `deploy-web.yml` (automatic frontend deploy).
+- [x] Remote Terraform backend (S3 + native lock).
 
-**Pendiente / deuda técnica conocida:**
-- [ ] `alarm_actions` de CloudWatch sin destino — falta SNS + email.
-- [ ] Lakehouse Monitoring sobre `yellow_taxi_features` (drift de features).
-- [ ] `zone_pair_stats` / `export_to_sagemaker` siguen siendo pasos manuales en Databricks (no forman parte del job automático).
-- [ ] `aws_s3_bucket_notification` sin declarar en Terraform — Unity Catalog la crea automáticamente sobre la External Location del bucket; no se toca en un `apply` de raíz para no borrarla por accidente.
+**Pending / known technical debt:**
+- [ ] CloudWatch `alarm_actions` with no destination — SNS + email still missing.
+- [ ] Lakehouse Monitoring over `yellow_taxi_features` (feature drift).
+- [ ] `zone_pair_stats` / `export_to_sagemaker` are still manual steps in Databricks (not part of the automated job).
+- [ ] An `aws_s3_bucket_notification` not declared in Terraform — Unity Catalog creates it automatically on the bucket's External Location; not touched in a root `apply` to avoid accidentally deleting it.
