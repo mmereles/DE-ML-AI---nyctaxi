@@ -14,6 +14,7 @@
   --error-bg: #fdecea;
   --error: #b3261e;
   --shadow: 0 2px 4px rgba(27, 18, 4, 0.08), 0 12px 28px rgba(27, 18, 4, 0.1);
+  --bg-scrim: rgba(255, 199, 44, 0.8); /* tinta el fondo de Times Square para que el texto siga legible */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -33,6 +34,7 @@
     --error-bg: #3a1d1a;
     --error: #ff8a80;
     --shadow: 0 2px 4px rgba(0, 0, 0, 0.35), 0 12px 28px rgba(0, 0, 0, 0.4);
+    --bg-scrim: rgba(15, 12, 6, 0.82);
   }
 }
 
@@ -43,18 +45,17 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--page-bg) url("./skyline-bg.svg") no-repeat bottom center / 1600px auto fixed;
+  /* foto real de Times Square (Unsplash, licencia libre) con un degrade del
+     color de marca encima - las cards son opacas asi que esto solo se ve
+     en los margenes/header, pero ahi el texto necesita el scrim para seguir
+     siendo legible contra una foto con tanto detalle. */
+  background: linear-gradient(var(--bg-scrim), var(--bg-scrim)), url("./times-square-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--ink);
   font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    /* el SVG esta dibujado en tono oscuro solido (pensado para el fondo
-       amarillo claro) - invertido, el skyline queda claro contra el fondo
-       casi negro del modo oscuro en vez de desaparecer */
-    filter: invert(1);
-  }
 }
 
 main {
