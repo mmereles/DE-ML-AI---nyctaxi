@@ -26,8 +26,12 @@ import requests
 from openai import OpenAI
 from databricks import sql as databricks_sql
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# basicConfig() no hace nada aca: el runtime de Lambda ya deja un handler
+# puesto en el root logger antes de que corra este modulo, asi que
+# basicConfig (que solo actua si NO hay handlers) queda de no-op - sin
+# setLevel explicito, los logger.info() se pierden en silencio.
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 MODEL = "gpt-4o"  # cambiar al modelo mas capaz disponible
 
@@ -146,6 +150,11 @@ def execute_tool(name: str, args: dict) -> str:
             return get_fare_quote(**args)
         return json.dumps({"error": f"Herramienta desconocida: {name}"})
     except Exception as e:
+        # Sin este log, un fallo de herramienta quedaba invisible en
+        # CloudWatch: el modelo recibe el error como texto y sigue la
+        # conversacion normalmente, pero del lado del servidor no quedaba
+        # rastro de que algo salio mal.
+        logger.error(f"Error ejecutando herramienta {name}({args}): {e}", exc_info=True)
         return json.dumps({"error": str(e)})
 
 

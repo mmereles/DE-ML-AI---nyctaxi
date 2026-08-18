@@ -327,6 +327,26 @@ setup_unity_catalog()
 
 # COMMAND ----------
 
+# taxi_zone_lookup como tabla real de Unity Catalog (no solo el CSV en
+# staging que usa load_zone_categories() mas arriba, que no podia guardarla
+# como tabla porque el catalogo/schema todavia no existian en ese punto).
+# La usa el agente conversacional (ask_agent.py, tool run_sql) para
+# resolver nombres de zona a LocationID, y nyctaxi_zone_pair_stats.py para
+# el fallback por borough - reutiliza el mismo CSV ya bajado a S3, no
+# vuelve a pegarle a la URL de TLC.
+def save_zone_lookup_table():
+    zone_lookup = spark.read.option("header", True).csv(
+        f"s3://{source_bucket}/nyctaxi/staging/taxi_zone_lookup.csv"
+    )
+    zone_lookup.write.mode("overwrite").saveAsTable(
+        "nyc_taxi_analytics.fare_prediction.taxi_zone_lookup"
+    )
+    logger.info("taxi_zone_lookup guardada en Unity Catalog.")
+
+save_zone_lookup_table()
+
+# COMMAND ----------
+
 def save_to_delta(df, table_path, table_name, year, month):
     """Save processed data to Delta Lake format"""
 
