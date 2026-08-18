@@ -67,6 +67,16 @@ resource "aws_apigatewayv2_api" "quote_api" {
   name          = "nyctaxi-quote-api"
   protocol_type = "HTTP"
 
+  # Sin esto el navegador manda un preflight OPTIONS antes del POST (el body
+  # es JSON, no "simple request") y la API le responde 404 - el POST real
+  # nunca llega a salir. Con curl no se nota porque no hay preflight.
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["POST"]
+    allow_headers = ["content-type"]
+    max_age       = 300
+  }
+
   tags = {
     Project = "nyctaxi-ml-pipeline"
   }
