@@ -117,6 +117,12 @@ def run_sql(query: str) -> str:
         server_hostname=os.environ["DATABRICKS_HOST"].replace("https://", ""),
         http_path=f"/sql/1.0/warehouses/{os.environ['DATABRICKS_SQL_WAREHOUSE_ID']}",
         access_token=token,
+        # Sin esto, el catalogo/schema por defecto de la sesion es
+        # workspace.default - cuando el modelo escribe "FROM taxi_zone_lookup"
+        # (nombre corto, sin calificar) en vez del nombre completo, la
+        # consulta tira TABLE_OR_VIEW_NOT_FOUND aunque la tabla exista.
+        catalog="nyc_taxi_analytics",
+        schema="fare_prediction",
     ) as conn:
         with conn.cursor() as cur:
             cur.execute(query)
