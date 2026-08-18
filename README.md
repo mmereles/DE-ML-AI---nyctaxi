@@ -6,50 +6,11 @@ Proyecto e-2-e sobre **NYC Yellow Taxi** (TLC Trip Record Data), de punta a punt
 
 ## Arquitectura
 
-Las 5 fases del roadmap, de ingesta a capa de IA — todas implementadas y desplegadas.
-
-```mermaid
-flowchart TB
-    TLC["NYC TLC<br/>CloudFront público"] --> LamIng
-    EBcron["EventBridge<br/>cron mensual (día 5)"] --> LamIng["Lambda: ingestion"]
-    LamIng --> S3raw[("S3 nyc-taxi-bucket<br/>raw/ · historical/")]
-    S3raw --> EBs3["EventBridge<br/>Object Created"]
-    EBs3 --> LamTrig["Lambda: processing_trigger"]
-    LamTrig -. lee token .-> Secrets[("Secrets Manager")]
-    Backfill["backfill.py"] --> HistLoop["historical_processing_loop"]:::databricks
-    HistLoop -.-> SchemaAudit["schema_audit"]:::databricks & EDA["eda"]:::databricks
-
-    LamTrig -- "POST jobs/run-now" --> Job["Job nyctaxi-processing<br/>(Databricks)"]:::databricks
-    Job --> Process["process<br/>(nyctaxi - processing)"]:::databricks
-    HistLoop -.-> Process
-    Process --> Delta[("Unity Catalog / Delta<br/>yellow_taxi_features<br/>+ taxi_zone_lookup")]:::databricks
-    Delta --> GTEval["ground_truth_eval"]:::databricks
-    GTEval --> Train["train<br/>naïve · Ridge · XGBoost"]:::databricks
-    Train --> Register["register_model<br/>champion en MLflow"]:::databricks
-    Register --> Promote["promote_champion"]:::databricks
-
-    Promote --> ExportSM["zone_pair_stats +<br/>export_to_sagemaker<br/>(hoy manuales)"]:::databricks
-    ExportSM --> S3sm[("S3 sagemaker/<br/>fare-quote-model/v1/")]
-    S3sm --> SageModel["SageMaker Model<br/>Script Mode"]
-    SageModel --> SageEndpoint["SageMaker Endpoint<br/>nyctaxi-fare-quote<br/>(Serverless Inference)"]
-    QuoteAPI["Lambda: quote_api"] -. invoke_endpoint IAM .-> SageEndpoint
-    APIGW["API Gateway<br/>POST /quote"] --> QuoteAPI
-
-    Delta -. lee la misma tabla .-> Forecast["demand_forecasting<br/>LightGBM (Fase 4.1)"]:::databricks
-    Agent["Lambda: ask_agent<br/>Function URL, BYOK OpenAI<br/>(Fase 4.2)"] -. "run_sql (SELECT-only)" .-> Delta
-    Agent -. get_fare_quote .-> APIGW
-    Web["agent/web<br/>React + Vite → GitHub Pages"] --> APIGW
-    Web --> Agent
-    Visitante["Visitante<br/>trae su propia key de OpenAI"] --> Web
-
-    classDef databricks fill:#FFEDE9,stroke:#FF3621,color:#341F1E
-```
-
-**Fase 0** (ingesta + prerequisitos) → **Fase 1-2** (processing, ML, MLOps en Databricks) → **Fase 3** (serving en SageMaker + API pública) → **Fase 4.1** (forecasting de demanda) → **Fase 4.2** (agente conversacional BYOK + frontend web).
-
-Versión con íconos reales de AWS/Databricks, agrupada por servicio (fuente editable: [`nyctaxi_architecture.drawio`](nyctaxi_architecture.drawio), para abrir en [app.diagrams.net](https://app.diagrams.net)):
+Las 5 fases del roadmap, de ingesta a capa de IA — todas implementadas y desplegadas. Íconos reales de AWS/Databricks, agrupado por servicio (fuente editable: [`nyctaxi_architecture.drawio`](nyctaxi_architecture.drawio), para abrir en [app.diagrams.net](https://app.diagrams.net)):
 
 ![Diagrama de arquitectura con íconos de AWS y Databricks](nyctaxi_architecture.svg)
+
+**Fase 0** (ingesta + prerequisitos) → **Fase 1-2** (processing, ML, MLOps en Databricks) → **Fase 3** (serving en SageMaker + API pública) → **Fase 4.1** (forecasting de demanda) → **Fase 4.2** (agente conversacional BYOK + frontend web).
 
 Todas las Lambdas publican métricas custom en CloudWatch (`NYCTaxiDownload`, `NYCTaxiProcessing`) con alarmas asociadas ante errores de ejecución.
 
