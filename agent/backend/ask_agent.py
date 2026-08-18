@@ -217,11 +217,15 @@ def lambda_handler(event, context):
 
 
 def _response(status, body):
+    # Sin Access-Control-Allow-Origin aca: la Function URL ya lo agrega sola
+    # (bloque cors en terraform/ask_agent.tf) para TODA respuesta, no solo
+    # el preflight OPTIONS - agregarlo tambien aca duplicaba el header, y el
+    # browser rechaza una respuesta con Access-Control-Allow-Origin repetido
+    # (mismo sintoma que un CORS mal configurado: "Failed to fetch").
     return {
         "statusCode": status,
         "headers": {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
         },
         "body": json.dumps(body),
     }
