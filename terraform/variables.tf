@@ -24,3 +24,9 @@ variable "sagemaker_xgboost_image" {
   type        = string
   default     = "683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-xgboost:1.7-1"
 }
+
+variable "databricks_sql_warehouse_id" {
+  description = "ID del SQL warehouse de Databricks que usa el agente (run_sql) para consultar Unity Catalog"
+  type        = string
+  default     = "27ed2322723070c7" # "Serverless Starter Warehouse"
+}

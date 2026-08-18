@@ -1,0 +1,1327 @@
+[
+  {
+    "id": 3,
+    "borough": "Bronx",
+    "zone": "Allerton/Pelham Gardens"
+  },
+  {
+    "id": 18,
+    "borough": "Bronx",
+    "zone": "Bedford Park"
+  },
+  {
+    "id": 20,
+    "borough": "Bronx",
+    "zone": "Belmont"
+  },
+  {
+    "id": 31,
+    "borough": "Bronx",
+    "zone": "Bronx Park"
+  },
+  {
+    "id": 32,
+    "borough": "Bronx",
+    "zone": "Bronxdale"
+  },
+  {
+    "id": 46,
+    "borough": "Bronx",
+    "zone": "City Island"
+  },
+  {
+    "id": 47,
+    "borough": "Bronx",
+    "zone": "Claremont/Bathgate"
+  },
+  {
+    "id": 51,
+    "borough": "Bronx",
+    "zone": "Co-Op City"
+  },
+  {
+    "id": 58,
+    "borough": "Bronx",
+    "zone": "Country Club"
+  },
+  {
+    "id": 59,
+    "borough": "Bronx",
+    "zone": "Crotona Park"
+  },
+  {
+    "id": 60,
+    "borough": "Bronx",
+    "zone": "Crotona Park East"
+  },
+  {
+    "id": 69,
+    "borough": "Bronx",
+    "zone": "East Concourse/Concourse Village"
+  },
+  {
+    "id": 78,
+    "borough": "Bronx",
+    "zone": "East Tremont"
+  },
+  {
+    "id": 81,
+    "borough": "Bronx",
+    "zone": "Eastchester"
+  },
+  {
+    "id": 94,
+    "borough": "Bronx",
+    "zone": "Fordham South"
+  },
+  {
+    "id": 119,
+    "borough": "Bronx",
+    "zone": "Highbridge"
+  },
+  {
+    "id": 126,
+    "borough": "Bronx",
+    "zone": "Hunts Point"
+  },
+  {
+    "id": 136,
+    "borough": "Bronx",
+    "zone": "Kingsbridge Heights"
+  },
+  {
+    "id": 147,
+    "borough": "Bronx",
+    "zone": "Longwood"
+  },
+  {
+    "id": 159,
+    "borough": "Bronx",
+    "zone": "Melrose South"
+  },
+  {
+    "id": 167,
+    "borough": "Bronx",
+    "zone": "Morrisania/Melrose"
+  },
+  {
+    "id": 168,
+    "borough": "Bronx",
+    "zone": "Mott Haven/Port Morris"
+  },
+  {
+    "id": 169,
+    "borough": "Bronx",
+    "zone": "Mount Hope"
+  },
+  {
+    "id": 174,
+    "borough": "Bronx",
+    "zone": "Norwood"
+  },
+  {
+    "id": 182,
+    "borough": "Bronx",
+    "zone": "Parkchester"
+  },
+  {
+    "id": 183,
+    "borough": "Bronx",
+    "zone": "Pelham Bay"
+  },
+  {
+    "id": 184,
+    "borough": "Bronx",
+    "zone": "Pelham Bay Park"
+  },
+  {
+    "id": 185,
+    "borough": "Bronx",
+    "zone": "Pelham Parkway"
+  },
+  {
+    "id": 199,
+    "borough": "Bronx",
+    "zone": "Rikers Island"
+  },
+  {
+    "id": 200,
+    "borough": "Bronx",
+    "zone": "Riverdale/North Riverdale/Fieldston"
+  },
+  {
+    "id": 208,
+    "borough": "Bronx",
+    "zone": "Schuylerville/Edgewater Park"
+  },
+  {
+    "id": 212,
+    "borough": "Bronx",
+    "zone": "Soundview/Bruckner"
+  },
+  {
+    "id": 213,
+    "borough": "Bronx",
+    "zone": "Soundview/Castle Hill"
+  },
+  {
+    "id": 220,
+    "borough": "Bronx",
+    "zone": "Spuyten Duyvil/Kingsbridge"
+  },
+  {
+    "id": 235,
+    "borough": "Bronx",
+    "zone": "University Heights/Morris Heights"
+  },
+  {
+    "id": 240,
+    "borough": "Bronx",
+    "zone": "Van Cortlandt Park"
+  },
+  {
+    "id": 241,
+    "borough": "Bronx",
+    "zone": "Van Cortlandt Village"
+  },
+  {
+    "id": 242,
+    "borough": "Bronx",
+    "zone": "Van Nest/Morris Park"
+  },
+  {
+    "id": 247,
+    "borough": "Bronx",
+    "zone": "West Concourse"
+  },
+  {
+    "id": 248,
+    "borough": "Bronx",
+    "zone": "West Farms/Bronx River"
+  },
+  {
+    "id": 250,
+    "borough": "Bronx",
+    "zone": "Westchester Village/Unionport"
+  },
+  {
+    "id": 254,
+    "borough": "Bronx",
+    "zone": "Williamsbridge/Olinville"
+  },
+  {
+    "id": 259,
+    "borough": "Bronx",
+    "zone": "Woodlawn/Wakefield"
+  },
+  {
+    "id": 11,
+    "borough": "Brooklyn",
+    "zone": "Bath Beach"
+  },
+  {
+    "id": 14,
+    "borough": "Brooklyn",
+    "zone": "Bay Ridge"
+  },
+  {
+    "id": 17,
+    "borough": "Brooklyn",
+    "zone": "Bedford"
+  },
+  {
+    "id": 21,
+    "borough": "Brooklyn",
+    "zone": "Bensonhurst East"
+  },
+  {
+    "id": 22,
+    "borough": "Brooklyn",
+    "zone": "Bensonhurst West"
+  },
+  {
+    "id": 25,
+    "borough": "Brooklyn",
+    "zone": "Boerum Hill"
+  },
+  {
+    "id": 26,
+    "borough": "Brooklyn",
+    "zone": "Borough Park"
+  },
+  {
+    "id": 29,
+    "borough": "Brooklyn",
+    "zone": "Brighton Beach"
+  },
+  {
+    "id": 33,
+    "borough": "Brooklyn",
+    "zone": "Brooklyn Heights"
+  },
+  {
+    "id": 34,
+    "borough": "Brooklyn",
+    "zone": "Brooklyn Navy Yard"
+  },
+  {
+    "id": 35,
+    "borough": "Brooklyn",
+    "zone": "Brownsville"
+  },
+  {
+    "id": 36,
+    "borough": "Brooklyn",
+    "zone": "Bushwick North"
+  },
+  {
+    "id": 37,
+    "borough": "Brooklyn",
+    "zone": "Bushwick South"
+  },
+  {
+    "id": 39,
+    "borough": "Brooklyn",
+    "zone": "Canarsie"
+  },
+  {
+    "id": 40,
+    "borough": "Brooklyn",
+    "zone": "Carroll Gardens"
+  },
+  {
+    "id": 49,
+    "borough": "Brooklyn",
+    "zone": "Clinton Hill"
+  },
+  {
+    "id": 52,
+    "borough": "Brooklyn",
+    "zone": "Cobble Hill"
+  },
+  {
+    "id": 54,
+    "borough": "Brooklyn",
+    "zone": "Columbia Street"
+  },
+  {
+    "id": 55,
+    "borough": "Brooklyn",
+    "zone": "Coney Island"
+  },
+  {
+    "id": 61,
+    "borough": "Brooklyn",
+    "zone": "Crown Heights North"
+  },
+  {
+    "id": 62,
+    "borough": "Brooklyn",
+    "zone": "Crown Heights South"
+  },
+  {
+    "id": 63,
+    "borough": "Brooklyn",
+    "zone": "Cypress Hills"
+  },
+  {
+    "id": 66,
+    "borough": "Brooklyn",
+    "zone": "DUMBO/Vinegar Hill"
+  },
+  {
+    "id": 65,
+    "borough": "Brooklyn",
+    "zone": "Downtown Brooklyn/MetroTech"
+  },
+  {
+    "id": 67,
+    "borough": "Brooklyn",
+    "zone": "Dyker Heights"
+  },
+  {
+    "id": 71,
+    "borough": "Brooklyn",
+    "zone": "East Flatbush/Farragut"
+  },
+  {
+    "id": 72,
+    "borough": "Brooklyn",
+    "zone": "East Flatbush/Remsen Village"
+  },
+  {
+    "id": 76,
+    "borough": "Brooklyn",
+    "zone": "East New York"
+  },
+  {
+    "id": 77,
+    "borough": "Brooklyn",
+    "zone": "East New York/Pennsylvania Avenue"
+  },
+  {
+    "id": 80,
+    "borough": "Brooklyn",
+    "zone": "East Williamsburg"
+  },
+  {
+    "id": 85,
+    "borough": "Brooklyn",
+    "zone": "Erasmus"
+  },
+  {
+    "id": 89,
+    "borough": "Brooklyn",
+    "zone": "Flatbush/Ditmas Park"
+  },
+  {
+    "id": 91,
+    "borough": "Brooklyn",
+    "zone": "Flatlands"
+  },
+  {
+    "id": 97,
+    "borough": "Brooklyn",
+    "zone": "Fort Greene"
+  },
+  {
+    "id": 106,
+    "borough": "Brooklyn",
+    "zone": "Gowanus"
+  },
+  {
+    "id": 108,
+    "borough": "Brooklyn",
+    "zone": "Gravesend"
+  },
+  {
+    "id": 111,
+    "borough": "Brooklyn",
+    "zone": "Green-Wood Cemetery"
+  },
+  {
+    "id": 112,
+    "borough": "Brooklyn",
+    "zone": "Greenpoint"
+  },
+  {
+    "id": 123,
+    "borough": "Brooklyn",
+    "zone": "Homecrest"
+  },
+  {
+    "id": 133,
+    "borough": "Brooklyn",
+    "zone": "Kensington"
+  },
+  {
+    "id": 149,
+    "borough": "Brooklyn",
+    "zone": "Madison"
+  },
+  {
+    "id": 150,
+    "borough": "Brooklyn",
+    "zone": "Manhattan Beach"
+  },
+  {
+    "id": 154,
+    "borough": "Brooklyn",
+    "zone": "Marine Park/Floyd Bennett Field"
+  },
+  {
+    "id": 155,
+    "borough": "Brooklyn",
+    "zone": "Marine Park/Mill Basin"
+  },
+  {
+    "id": 165,
+    "borough": "Brooklyn",
+    "zone": "Midwood"
+  },
+  {
+    "id": 177,
+    "borough": "Brooklyn",
+    "zone": "Ocean Hill"
+  },
+  {
+    "id": 178,
+    "borough": "Brooklyn",
+    "zone": "Ocean Parkway South"
+  },
+  {
+    "id": 181,
+    "borough": "Brooklyn",
+    "zone": "Park Slope"
+  },
+  {
+    "id": 189,
+    "borough": "Brooklyn",
+    "zone": "Prospect Heights"
+  },
+  {
+    "id": 190,
+    "borough": "Brooklyn",
+    "zone": "Prospect Park"
+  },
+  {
+    "id": 188,
+    "borough": "Brooklyn",
+    "zone": "Prospect-Lefferts Gardens"
+  },
+  {
+    "id": 195,
+    "borough": "Brooklyn",
+    "zone": "Red Hook"
+  },
+  {
+    "id": 210,
+    "borough": "Brooklyn",
+    "zone": "Sheepshead Bay"
+  },
+  {
+    "id": 217,
+    "borough": "Brooklyn",
+    "zone": "South Williamsburg"
+  },
+  {
+    "id": 222,
+    "borough": "Brooklyn",
+    "zone": "Starrett City"
+  },
+  {
+    "id": 225,
+    "borough": "Brooklyn",
+    "zone": "Stuyvesant Heights"
+  },
+  {
+    "id": 227,
+    "borough": "Brooklyn",
+    "zone": "Sunset Park East"
+  },
+  {
+    "id": 228,
+    "borough": "Brooklyn",
+    "zone": "Sunset Park West"
+  },
+  {
+    "id": 255,
+    "borough": "Brooklyn",
+    "zone": "Williamsburg (North Side)"
+  },
+  {
+    "id": 256,
+    "borough": "Brooklyn",
+    "zone": "Williamsburg (South Side)"
+  },
+  {
+    "id": 257,
+    "borough": "Brooklyn",
+    "zone": "Windsor Terrace"
+  },
+  {
+    "id": 1,
+    "borough": "EWR",
+    "zone": "Newark Airport"
+  },
+  {
+    "id": 4,
+    "borough": "Manhattan",
+    "zone": "Alphabet City"
+  },
+  {
+    "id": 12,
+    "borough": "Manhattan",
+    "zone": "Battery Park"
+  },
+  {
+    "id": 13,
+    "borough": "Manhattan",
+    "zone": "Battery Park City"
+  },
+  {
+    "id": 24,
+    "borough": "Manhattan",
+    "zone": "Bloomingdale"
+  },
+  {
+    "id": 41,
+    "borough": "Manhattan",
+    "zone": "Central Harlem"
+  },
+  {
+    "id": 42,
+    "borough": "Manhattan",
+    "zone": "Central Harlem North"
+  },
+  {
+    "id": 43,
+    "borough": "Manhattan",
+    "zone": "Central Park"
+  },
+  {
+    "id": 45,
+    "borough": "Manhattan",
+    "zone": "Chinatown"
+  },
+  {
+    "id": 48,
+    "borough": "Manhattan",
+    "zone": "Clinton East"
+  },
+  {
+    "id": 50,
+    "borough": "Manhattan",
+    "zone": "Clinton West"
+  },
+  {
+    "id": 68,
+    "borough": "Manhattan",
+    "zone": "East Chelsea"
+  },
+  {
+    "id": 74,
+    "borough": "Manhattan",
+    "zone": "East Harlem North"
+  },
+  {
+    "id": 75,
+    "borough": "Manhattan",
+    "zone": "East Harlem South"
+  },
+  {
+    "id": 79,
+    "borough": "Manhattan",
+    "zone": "East Village"
+  },
+  {
+    "id": 87,
+    "borough": "Manhattan",
+    "zone": "Financial District North"
+  },
+  {
+    "id": 88,
+    "borough": "Manhattan",
+    "zone": "Financial District South"
+  },
+  {
+    "id": 90,
+    "borough": "Manhattan",
+    "zone": "Flatiron"
+  },
+  {
+    "id": 100,
+    "borough": "Manhattan",
+    "zone": "Garment District"
+  },
+  {
+    "id": 103,
+    "borough": "Manhattan",
+    "zone": "Governor's Island/Ellis Island/Liberty Island"
+  },
+  {
+    "id": 104,
+    "borough": "Manhattan",
+    "zone": "Governor's Island/Ellis Island/Liberty Island"
+  },
+  {
+    "id": 105,
+    "borough": "Manhattan",
+    "zone": "Governor's Island/Ellis Island/Liberty Island"
+  },
+  {
+    "id": 107,
+    "borough": "Manhattan",
+    "zone": "Gramercy"
+  },
+  {
+    "id": 113,
+    "borough": "Manhattan",
+    "zone": "Greenwich Village North"
+  },
+  {
+    "id": 114,
+    "borough": "Manhattan",
+    "zone": "Greenwich Village South"
+  },
+  {
+    "id": 116,
+    "borough": "Manhattan",
+    "zone": "Hamilton Heights"
+  },
+  {
+    "id": 120,
+    "borough": "Manhattan",
+    "zone": "Highbridge Park"
+  },
+  {
+    "id": 125,
+    "borough": "Manhattan",
+    "zone": "Hudson Sq"
+  },
+  {
+    "id": 127,
+    "borough": "Manhattan",
+    "zone": "Inwood"
+  },
+  {
+    "id": 128,
+    "borough": "Manhattan",
+    "zone": "Inwood Hill Park"
+  },
+  {
+    "id": 137,
+    "borough": "Manhattan",
+    "zone": "Kips Bay"
+  },
+  {
+    "id": 140,
+    "borough": "Manhattan",
+    "zone": "Lenox Hill East"
+  },
+  {
+    "id": 141,
+    "borough": "Manhattan",
+    "zone": "Lenox Hill West"
+  },
+  {
+    "id": 142,
+    "borough": "Manhattan",
+    "zone": "Lincoln Square East"
+  },
+  {
+    "id": 143,
+    "borough": "Manhattan",
+    "zone": "Lincoln Square West"
+  },
+  {
+    "id": 144,
+    "borough": "Manhattan",
+    "zone": "Little Italy/NoLiTa"
+  },
+  {
+    "id": 148,
+    "borough": "Manhattan",
+    "zone": "Lower East Side"
+  },
+  {
+    "id": 151,
+    "borough": "Manhattan",
+    "zone": "Manhattan Valley"
+  },
+  {
+    "id": 152,
+    "borough": "Manhattan",
+    "zone": "Manhattanville"
+  },
+  {
+    "id": 153,
+    "borough": "Manhattan",
+    "zone": "Marble Hill"
+  },
+  {
+    "id": 158,
+    "borough": "Manhattan",
+    "zone": "Meatpacking/West Village West"
+  },
+  {
+    "id": 161,
+    "borough": "Manhattan",
+    "zone": "Midtown Center"
+  },
+  {
+    "id": 162,
+    "borough": "Manhattan",
+    "zone": "Midtown East"
+  },
+  {
+    "id": 163,
+    "borough": "Manhattan",
+    "zone": "Midtown North"
+  },
+  {
+    "id": 164,
+    "borough": "Manhattan",
+    "zone": "Midtown South"
+  },
+  {
+    "id": 166,
+    "borough": "Manhattan",
+    "zone": "Morningside Heights"
+  },
+  {
+    "id": 170,
+    "borough": "Manhattan",
+    "zone": "Murray Hill"
+  },
+  {
+    "id": 186,
+    "borough": "Manhattan",
+    "zone": "Penn Station/Madison Sq West"
+  },
+  {
+    "id": 194,
+    "borough": "Manhattan",
+    "zone": "Randalls Island"
+  },
+  {
+    "id": 202,
+    "borough": "Manhattan",
+    "zone": "Roosevelt Island"
+  },
+  {
+    "id": 209,
+    "borough": "Manhattan",
+    "zone": "Seaport"
+  },
+  {
+    "id": 211,
+    "borough": "Manhattan",
+    "zone": "SoHo"
+  },
+  {
+    "id": 224,
+    "borough": "Manhattan",
+    "zone": "Stuy Town/Peter Cooper Village"
+  },
+  {
+    "id": 229,
+    "borough": "Manhattan",
+    "zone": "Sutton Place/Turtle Bay North"
+  },
+  {
+    "id": 230,
+    "borough": "Manhattan",
+    "zone": "Times Sq/Theatre District"
+  },
+  {
+    "id": 231,
+    "borough": "Manhattan",
+    "zone": "TriBeCa/Civic Center"
+  },
+  {
+    "id": 232,
+    "borough": "Manhattan",
+    "zone": "Two Bridges/Seward Park"
+  },
+  {
+    "id": 233,
+    "borough": "Manhattan",
+    "zone": "UN/Turtle Bay South"
+  },
+  {
+    "id": 234,
+    "borough": "Manhattan",
+    "zone": "Union Sq"
+  },
+  {
+    "id": 236,
+    "borough": "Manhattan",
+    "zone": "Upper East Side North"
+  },
+  {
+    "id": 237,
+    "borough": "Manhattan",
+    "zone": "Upper East Side South"
+  },
+  {
+    "id": 238,
+    "borough": "Manhattan",
+    "zone": "Upper West Side North"
+  },
+  {
+    "id": 239,
+    "borough": "Manhattan",
+    "zone": "Upper West Side South"
+  },
+  {
+    "id": 243,
+    "borough": "Manhattan",
+    "zone": "Washington Heights North"
+  },
+  {
+    "id": 244,
+    "borough": "Manhattan",
+    "zone": "Washington Heights South"
+  },
+  {
+    "id": 246,
+    "borough": "Manhattan",
+    "zone": "West Chelsea/Hudson Yards"
+  },
+  {
+    "id": 249,
+    "borough": "Manhattan",
+    "zone": "West Village"
+  },
+  {
+    "id": 261,
+    "borough": "Manhattan",
+    "zone": "World Trade Center"
+  },
+  {
+    "id": 262,
+    "borough": "Manhattan",
+    "zone": "Yorkville East"
+  },
+  {
+    "id": 263,
+    "borough": "Manhattan",
+    "zone": "Yorkville West"
+  },
+  {
+    "id": 265,
+    "borough": "N/A",
+    "zone": "Outside of NYC"
+  },
+  {
+    "id": 7,
+    "borough": "Queens",
+    "zone": "Astoria"
+  },
+  {
+    "id": 8,
+    "borough": "Queens",
+    "zone": "Astoria Park"
+  },
+  {
+    "id": 9,
+    "borough": "Queens",
+    "zone": "Auburndale"
+  },
+  {
+    "id": 10,
+    "borough": "Queens",
+    "zone": "Baisley Park"
+  },
+  {
+    "id": 15,
+    "borough": "Queens",
+    "zone": "Bay Terrace/Fort Totten"
+  },
+  {
+    "id": 16,
+    "borough": "Queens",
+    "zone": "Bayside"
+  },
+  {
+    "id": 19,
+    "borough": "Queens",
+    "zone": "Bellerose"
+  },
+  {
+    "id": 27,
+    "borough": "Queens",
+    "zone": "Breezy Point/Fort Tilden/Riis Beach"
+  },
+  {
+    "id": 28,
+    "borough": "Queens",
+    "zone": "Briarwood/Jamaica Hills"
+  },
+  {
+    "id": 30,
+    "borough": "Queens",
+    "zone": "Broad Channel"
+  },
+  {
+    "id": 38,
+    "borough": "Queens",
+    "zone": "Cambria Heights"
+  },
+  {
+    "id": 53,
+    "borough": "Queens",
+    "zone": "College Point"
+  },
+  {
+    "id": 56,
+    "borough": "Queens",
+    "zone": "Corona"
+  },
+  {
+    "id": 57,
+    "borough": "Queens",
+    "zone": "Corona"
+  },
+  {
+    "id": 64,
+    "borough": "Queens",
+    "zone": "Douglaston"
+  },
+  {
+    "id": 70,
+    "borough": "Queens",
+    "zone": "East Elmhurst"
+  },
+  {
+    "id": 73,
+    "borough": "Queens",
+    "zone": "East Flushing"
+  },
+  {
+    "id": 82,
+    "borough": "Queens",
+    "zone": "Elmhurst"
+  },
+  {
+    "id": 83,
+    "borough": "Queens",
+    "zone": "Elmhurst/Maspeth"
+  },
+  {
+    "id": 86,
+    "borough": "Queens",
+    "zone": "Far Rockaway"
+  },
+  {
+    "id": 92,
+    "borough": "Queens",
+    "zone": "Flushing"
+  },
+  {
+    "id": 93,
+    "borough": "Queens",
+    "zone": "Flushing Meadows-Corona Park"
+  },
+  {
+    "id": 95,
+    "borough": "Queens",
+    "zone": "Forest Hills"
+  },
+  {
+    "id": 96,
+    "borough": "Queens",
+    "zone": "Forest Park/Highland Park"
+  },
+  {
+    "id": 98,
+    "borough": "Queens",
+    "zone": "Fresh Meadows"
+  },
+  {
+    "id": 101,
+    "borough": "Queens",
+    "zone": "Glen Oaks"
+  },
+  {
+    "id": 102,
+    "borough": "Queens",
+    "zone": "Glendale"
+  },
+  {
+    "id": 117,
+    "borough": "Queens",
+    "zone": "Hammels/Arverne"
+  },
+  {
+    "id": 121,
+    "borough": "Queens",
+    "zone": "Hillcrest/Pomonok"
+  },
+  {
+    "id": 122,
+    "borough": "Queens",
+    "zone": "Hollis"
+  },
+  {
+    "id": 124,
+    "borough": "Queens",
+    "zone": "Howard Beach"
+  },
+  {
+    "id": 132,
+    "borough": "Queens",
+    "zone": "JFK Airport"
+  },
+  {
+    "id": 129,
+    "borough": "Queens",
+    "zone": "Jackson Heights"
+  },
+  {
+    "id": 130,
+    "borough": "Queens",
+    "zone": "Jamaica"
+  },
+  {
+    "id": 2,
+    "borough": "Queens",
+    "zone": "Jamaica Bay"
+  },
+  {
+    "id": 131,
+    "borough": "Queens",
+    "zone": "Jamaica Estates"
+  },
+  {
+    "id": 134,
+    "borough": "Queens",
+    "zone": "Kew Gardens"
+  },
+  {
+    "id": 135,
+    "borough": "Queens",
+    "zone": "Kew Gardens Hills"
+  },
+  {
+    "id": 138,
+    "borough": "Queens",
+    "zone": "LaGuardia Airport"
+  },
+  {
+    "id": 139,
+    "borough": "Queens",
+    "zone": "Laurelton"
+  },
+  {
+    "id": 145,
+    "borough": "Queens",
+    "zone": "Long Island City/Hunters Point"
+  },
+  {
+    "id": 146,
+    "borough": "Queens",
+    "zone": "Long Island City/Queens Plaza"
+  },
+  {
+    "id": 157,
+    "borough": "Queens",
+    "zone": "Maspeth"
+  },
+  {
+    "id": 160,
+    "borough": "Queens",
+    "zone": "Middle Village"
+  },
+  {
+    "id": 171,
+    "borough": "Queens",
+    "zone": "Murray Hill-Queens"
+  },
+  {
+    "id": 173,
+    "borough": "Queens",
+    "zone": "North Corona"
+  },
+  {
+    "id": 175,
+    "borough": "Queens",
+    "zone": "Oakland Gardens"
+  },
+  {
+    "id": 179,
+    "borough": "Queens",
+    "zone": "Old Astoria"
+  },
+  {
+    "id": 180,
+    "borough": "Queens",
+    "zone": "Ozone Park"
+  },
+  {
+    "id": 191,
+    "borough": "Queens",
+    "zone": "Queens Village"
+  },
+  {
+    "id": 192,
+    "borough": "Queens",
+    "zone": "Queensboro Hill"
+  },
+  {
+    "id": 193,
+    "borough": "Queens",
+    "zone": "Queensbridge/Ravenswood"
+  },
+  {
+    "id": 196,
+    "borough": "Queens",
+    "zone": "Rego Park"
+  },
+  {
+    "id": 197,
+    "borough": "Queens",
+    "zone": "Richmond Hill"
+  },
+  {
+    "id": 198,
+    "borough": "Queens",
+    "zone": "Ridgewood"
+  },
+  {
+    "id": 201,
+    "borough": "Queens",
+    "zone": "Rockaway Park"
+  },
+  {
+    "id": 203,
+    "borough": "Queens",
+    "zone": "Rosedale"
+  },
+  {
+    "id": 205,
+    "borough": "Queens",
+    "zone": "Saint Albans"
+  },
+  {
+    "id": 207,
+    "borough": "Queens",
+    "zone": "Saint Michaels Cemetery/Woodside"
+  },
+  {
+    "id": 215,
+    "borough": "Queens",
+    "zone": "South Jamaica"
+  },
+  {
+    "id": 216,
+    "borough": "Queens",
+    "zone": "South Ozone Park"
+  },
+  {
+    "id": 218,
+    "borough": "Queens",
+    "zone": "Springfield Gardens North"
+  },
+  {
+    "id": 219,
+    "borough": "Queens",
+    "zone": "Springfield Gardens South"
+  },
+  {
+    "id": 223,
+    "borough": "Queens",
+    "zone": "Steinway"
+  },
+  {
+    "id": 226,
+    "borough": "Queens",
+    "zone": "Sunnyside"
+  },
+  {
+    "id": 252,
+    "borough": "Queens",
+    "zone": "Whitestone"
+  },
+  {
+    "id": 253,
+    "borough": "Queens",
+    "zone": "Willets Point"
+  },
+  {
+    "id": 258,
+    "borough": "Queens",
+    "zone": "Woodhaven"
+  },
+  {
+    "id": 260,
+    "borough": "Queens",
+    "zone": "Woodside"
+  },
+  {
+    "id": 5,
+    "borough": "Staten Island",
+    "zone": "Arden Heights"
+  },
+  {
+    "id": 6,
+    "borough": "Staten Island",
+    "zone": "Arrochar/Fort Wadsworth"
+  },
+  {
+    "id": 23,
+    "borough": "Staten Island",
+    "zone": "Bloomfield/Emerson Hill"
+  },
+  {
+    "id": 44,
+    "borough": "Staten Island",
+    "zone": "Charleston/Tottenville"
+  },
+  {
+    "id": 84,
+    "borough": "Staten Island",
+    "zone": "Eltingville/Annadale/Prince's Bay"
+  },
+  {
+    "id": 99,
+    "borough": "Staten Island",
+    "zone": "Freshkills Park"
+  },
+  {
+    "id": 109,
+    "borough": "Staten Island",
+    "zone": "Great Kills"
+  },
+  {
+    "id": 110,
+    "borough": "Staten Island",
+    "zone": "Great Kills Park"
+  },
+  {
+    "id": 115,
+    "borough": "Staten Island",
+    "zone": "Grymes Hill/Clifton"
+  },
+  {
+    "id": 118,
+    "borough": "Staten Island",
+    "zone": "Heartland Village/Todt Hill"
+  },
+  {
+    "id": 156,
+    "borough": "Staten Island",
+    "zone": "Mariners Harbor"
+  },
+  {
+    "id": 172,
+    "borough": "Staten Island",
+    "zone": "New Dorp/Midland Beach"
+  },
+  {
+    "id": 176,
+    "borough": "Staten Island",
+    "zone": "Oakwood"
+  },
+  {
+    "id": 187,
+    "borough": "Staten Island",
+    "zone": "Port Richmond"
+  },
+  {
+    "id": 204,
+    "borough": "Staten Island",
+    "zone": "Rossville/Woodrow"
+  },
+  {
+    "id": 206,
+    "borough": "Staten Island",
+    "zone": "Saint George/New Brighton"
+  },
+  {
+    "id": 214,
+    "borough": "Staten Island",
+    "zone": "South Beach/Dongan Hills"
+  },
+  {
+    "id": 221,
+    "borough": "Staten Island",
+    "zone": "Stapleton"
+  },
+  {
+    "id": 245,
+    "borough": "Staten Island",
+    "zone": "West Brighton"
+  },
+  {
+    "id": 251,
+    "borough": "Staten Island",
+    "zone": "Westerleigh"
+  },
+  {
+    "id": 264,
+    "borough": "Unknown",
+    "zone": "N/A"
+  }
+]

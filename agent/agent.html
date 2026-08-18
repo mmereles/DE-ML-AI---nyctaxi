@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NYC Taxi — Asistente de datos</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --ink: #1b2028;
+    --ink-muted: #5b6472;
+    --line: #e1e4ea;
+    --accent: #c7860a;
+    --user-bubble: #eef0f3;
+    --agent-bubble: #fff8ea;
+    --error: #b3261e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+  main {
+    width: 100%;
+    max-width: 720px;
+  }
+  h1 {
+    font-size: 1.4rem;
+    margin: 0 0 4px;
+  }
+  .sub {
+    color: var(--ink-muted);
+    margin: 0 0 24px;
+    font-size: 0.95rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .key-note {
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+  input[type="password"], input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  #chat {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 120px;
+    margin-bottom: 16px;
+  }
+  .msg {
+    padding: 10px 14px;
+    border-radius: 10px;
+    max-width: 85%;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .msg.user {
+    background: var(--user-bubble);
+    align-self: flex-end;
+  }
+  .msg.agent {
+    background: var(--agent-bubble);
+    border: 1px solid var(--line);
+    align-self: flex-start;
+  }
+  .msg.error {
+    background: #fdecea;
+    border: 1px solid var(--error);
+    color: var(--error);
+    align-self: flex-start;
+  }
+  .msg.pending {
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+  form.ask {
+    display: flex;
+    gap: 8px;
+  }
+  form.ask input {
+    flex: 1;
+  }
+  button {
+    background: var(--accent);
+    color: #1b1204;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .examples {
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    margin-top: 10px;
+  }
+  .examples button {
+    background: none;
+    color: var(--accent);
+    padding: 0;
+    font-weight: 500;
+    text-decoration: underline;
+    margin-right: 14px;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Asistente de datos — NYC Yellow Taxi</h1>
+  <p class="sub">Preguntá en lenguaje natural sobre tarifas y demanda de taxis en NYC. El agente decide solo si consulta el histórico (SQL) o cotiza con el modelo de ML.</p>
+
+  <div class="card">
+    <label for="apiKey">Tu API key de OpenAI</label>
+    <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off" />
+    <p class="key-note">
+      Se usa una sola vez, en el momento de cada pregunta, para llamar a la API de OpenAI con tu cuenta —
+      nunca se guarda en ningún servidor ni en este navegador. El costo de cada pregunta es tuyo, no del dueño de este proyecto.
+    </p>
+  </div>
+
+  <div id="chat"></div>
+
+  <form class="ask" id="askForm">
+    <input type="text" id="question" placeholder="¿Cuánto costaría un viaje de Midtown a JFK un viernes a las 18?" autocomplete="off" />
+    <button type="submit" id="askBtn">Preguntar</button>
+  </form>
+  <div class="examples">
+    <button type="button" data-q="¿Qué zona de Manhattan tuvo más pickups en total?">zona con más pickups</button>
+    <button type="button" data-q="¿Cuánto costaría un viaje de Midtown a JFK un viernes a las 18?">cotizar Midtown → JFK</button>
+    <button type="button" data-q="¿Dónde va a haber más demanda mañana a las 8 de la mañana?">demanda de mañana</button>
+  </div>
+</main>
+
+<script>
+  // Reemplazar por la Function URL real una vez desplegada con terraform apply
+  // (output "ask_agent_url" en terraform/ask_agent.tf).
+  const ASK_AGENT_URL = "https://k7lxpadhtgm7fex5rdqafilx2m0gxqnh.lambda-url.us-east-1.on.aws/";
+
+  const chat = document.getElementById("chat");
+  const form = document.getElementById("askForm");
+  const questionInput = document.getElementById("question");
+  const apiKeyInput = document.getElementById("apiKey");
+  const askBtn = document.getElementById("askBtn");
+
+  function addMessage(text, cls) {
+    const div = document.createElement("div");
+    div.className = "msg " + cls;
+    div.textContent = text;
+    chat.appendChild(div);
+    div.scrollIntoView({ behavior: "smooth", block: "end" });
+    return div;
+  }
+
+  document.querySelectorAll(".examples button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      questionInput.value = btn.dataset.q;
+      questionInput.focus();
+    });
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const question = questionInput.value.trim();
+    const apiKey = apiKeyInput.value.trim();
+
+    if (!question) return;
+    if (!apiKey) {
+      addMessage("Falta tu API key de OpenAI (campo de arriba) para poder preguntar.", "error");
+      return;
+    }
+
+    addMessage(question, "user");
+    questionInput.value = "";
+    askBtn.disabled = true;
+    const pending = addMessage("Pensando (puede tardar hasta un minuto si usa varias herramientas)…", "agent pending");
+
+    try {
+      const resp = await fetch(ASK_AGENT_URL, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ question, openai_api_key: apiKey }),
+      });
+      const data = await resp.json();
+      pending.remove();
+
+      if (!resp.ok) {
+        addMessage(data.error || `Error ${resp.status}`, "error");
+      } else {
+        addMessage(data.answer, "agent");
+      }
+    } catch (err) {
+      pending.remove();
+      addMessage("No se pudo contactar al agente: " + err.message, "error");
+    } finally {
+      askBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

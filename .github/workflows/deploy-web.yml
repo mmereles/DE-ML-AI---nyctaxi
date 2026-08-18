@@ -1,0 +1,85 @@
+# Despliega el frontend de React (Fase 4.2, agent/web/) a GitHub Pages en
+# cada push a main que toque esa carpeta. No usa AWS para nada acá - GitHub
+# Pages tiene su propio mecanismo de OIDC (permissions: pages/id-token),
+# separado del rol OIDC de AWS que ya usa terraform.yml.
+#
+# Prerequisitos antes de que esto funcione:
+#   1. En GitHub: Settings → Pages → Source = "GitHub Actions" (no "Deploy
+#      from a branch" - ese modo viejo sirve un branch/carpeta fija, este
+#      workflow publica directo sin commitear el build a ningun lado).
+#   2. Variables de repo (Settings → Secrets and variables → Actions →
+#      Variables), ninguna es secreta - ambas son públicas una vez
+#      desplegadas (el visitante las ve igual en el navegador/devtools) -
+#      por eso variables, no secrets:
+#        - ASK_AGENT_URL: Function URL del Lambda del agente (output
+#          "ask_agent_url" de terraform/ask_agent.tf).
+#        - QUOTE_API_URL: endpoint de API Gateway de quote_api (output
+#          "quote_api_url" de terraform/quote_api.tf o similar).
+#      Quien haga fork de este repo aplica su propio Terraform y carga sus
+#      propias URLs acá - nada de esto se hardcodea en el código ni se
+#      commitea en un .env.
+
+name: Deploy web (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "agent/web/**"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch: # permite disparar el deploy a mano desde la pestaña Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un solo deploy de Pages a la vez - evita que dos pushes seguidos pisen
+# el resultado el uno al otro.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: agent/web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: agent/web
+        run: npm ci
+
+      - name: Build
+        working-directory: agent/web
+        env:
+          VITE_ASK_AGENT_URL: ${{ vars.ASK_AGENT_URL }}
+          VITE_QUOTE_API_URL: ${{ vars.QUOTE_API_URL }}
+        run: npm run build
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload build artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: agent/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,4 @@
+# Dependencias del asistente (Fase 4.2)
+openai>=1.50
+databricks-sql-connector>=3.0
+requests>=2.31

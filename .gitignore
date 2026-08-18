@@ -20,6 +20,18 @@ lambda/urllib3-*.dist-info/
 lambda/*.so
 *.zip
 
+# Fase 4.2 agent backend build artifacts (installed from
+# agent/backend/requirements.txt via pip install --target)
+agent/backend/*
+!agent/backend/ask_agent.py
+!agent/backend/nyctaxi_assistant.py
+!agent/backend/requirements.txt
+
+# Fase 4.2 agent web (Vite/React)
+agent/web/node_modules/
+agent/web/dist/
+agent/web/.env
+
 # Terraform
 /terraform.tfstate
 /terraform.tfstate.backup
